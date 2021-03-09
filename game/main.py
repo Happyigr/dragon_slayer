@@ -1,8 +1,6 @@
-import pygame
-from os import path
 import random
-from Variables import *
-from Methods import *
+import pygame
+from stuff.Methods import *
 
 
 def newmob():
@@ -15,6 +13,36 @@ def sword_spawn():
     sword = Sword(player.rect.x, player.rect.y)
     all_sprites.add(sword)
     sword_sprite.add(sword)
+
+
+def random_no_0(start, stop):
+    time = 0
+    while time == 0:
+        time = random.randrange(start, stop)
+    return time
+
+
+# Скорость для движения к игроку в виде x y
+def to_player_go(mob):
+    speeds = []
+    time = 30
+    Sx = player.get_coord()[0] - mob.get_coord()[0]
+    Sy = player.get_coord()[1] - mob.get_coord()[1]
+    speedx = Sx / time
+    speedy = Sy / time
+    while not (-5 <= speedx <= 5) and not(-5 <= speedy <= 5) and speedy == 0 and speedx == 0:
+        time += 5
+        speedy = Sy / time
+        speedx = Sx / time
+    if random.random() >= 0.8:
+        speedy /= 2
+        speedx /= 2
+    else:
+        speedx /= 3
+        speedy /= 3
+    speeds.append(speedx)
+    speeds.append(speedy)
+    return speeds
 
 
 class Player(pygame.sprite.Sprite):
@@ -52,6 +80,11 @@ class Player(pygame.sprite.Sprite):
     def hit(self):
         sword_spawn()
 
+    # Возвращает координаты в виде x y
+    def get_coord(self):
+        coord = [self.rect.x, self.rect.y]
+        return coord
+
 
 class Sword(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -76,25 +109,47 @@ class Mob(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.choice(mobs_values_x)
         self.rect.y = random.choice(mobs_values_y)
+        self.spawn_time = pygame.time.get_ticks() + random.randrange(0, 5000)
+        self.changed_speed_time = pygame.time.get_ticks()
         self.speedx = random.randrange(-5, 5)
         self.speedy = random.randrange(-5, 5)
 
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+        time = pygame.time.get_ticks()
+        # Ходьба мобов
+        if self.changed_speed_time == self.spawn_time:
+            self.changed_speed_time += 5000
+        if time - self.changed_speed_time >= random.randrange(2000, 4000):
+            if random.random() >= 0.9:
+                self.speedx = 0
+                self.speedy = 0
+            elif random.random() >= 0.7:
+                self.speedx = to_player_go(self)[0]
+                self.speedy = to_player_go(self)[1]
+            else:
+                self.speedx = random.randrange(-5, 5)
+                self.speedy = random.randrange(-5, 5)
+            self.changed_speed_time = time
         # Проверка выхода за карту
         if self.rect.right >= WIDTH - 50:
             self.rect.right = WIDTH - 50
-            self.speedx = random.randrange(-5, 5)
+            self.speedx = self.speedx * -1
         if self.rect.left <= 0 + 50:
             self.rect.left = 0 + 50
-            self.speedx = random.randrange(-5, 5)
+            self.speedx = self.speedx * -1
         if self.rect.bottom >= HEIGHT - 50:
             self.rect.bottom = HEIGHT - 50
-            self.speedy = random.randrange(-5, 5)
+            self.speedy = self.speedy * -1
         if self.rect.top <= 0 + 50:
             self.rect.top = 0 + 50
-            self.speedy = random.randrange(-5, 5)
+            self.speedy = self.speedy * -1
+
+    # Возвращает координаты в виде x y
+    def get_coord(self):
+        coord = [self.rect.x, self.rect.y]
+        return coord
 
 
 # Создаем игру и окно
