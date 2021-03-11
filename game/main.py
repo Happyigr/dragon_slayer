@@ -1,18 +1,13 @@
 import random
 import pygame
+import math
 from stuff.Methods import *
-
+from img.images import *
 
 def newmob():
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
-
-
-def sword_spawn():
-    sword = Sword(player.rect.x, player.rect.y)
-    all_sprites.add(sword)
-    sword_sprite.add(sword)
 
 
 def random_no_0(start, stop):
@@ -78,7 +73,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0 + 50
 
     def hit(self):
-        sword_spawn()
+        pass
 
     # Возвращает координаты в виде x y
     def get_coord(self):
@@ -87,18 +82,97 @@ class Player(pygame.sprite.Sprite):
 
 
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(WHITE)
+        self.image = sword_img_mini
+        self.image_orig = self.image
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.midbottom = player.rect.center
+        self.x = self.rect.x
+        self.y = self.rect.y
+        self.speedx = 0
+        self.speedy = 0
         self.damage = None
         self.range = None
+        self.angle = 0
 
     def update(self):
+        # ходьба меча
+        mouse_coord = pygame.mouse.get_pos()
+        mouse_x = mouse_coord[0]
+        mouse_y = mouse_coord[1]
+        if -30 <= mouse_x - self.rect.centerx <= 30:
+            self.speedx = 0
+        elif self.rect.centerx <= mouse_x:
+            self.speedx += 5
+        elif self.rect.centerx >= mouse_x:
+            self.speedx += -5
+        if -30 <= mouse_y - self.rect.centery <= 30:
+            self.speedy = 0
+        elif self.rect.centery <= mouse_y:
+            self.speedy += 5
+        elif self.rect.centery >= mouse_y:
+            self.speedy += -5
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        # Проверка на выход за пределы
+        if self.rect.right >= WIDTH - 50:
+            self.rect.right = WIDTH - 50
+        if self.rect.left <= 0 + 50:
+            self.rect.left = 0 + 50
+        if self.rect.bottom >= HEIGHT - 50:
+            self.rect.bottom = HEIGHT - 50
+        if self.rect.top <= 0 + 50:
+            self.rect.top = 0 + 50
+
+    def hit(self):
         pass
+
+    # не работает
+    def rotate(self):
+        mouse_coord = pygame.mouse.get_pos()
+        mouse_x = mouse_coord[0]
+        mouse_y = mouse_coord[1]
+        # Поворот меча
+        self.angle = 0
+        max_x = 0
+        max_y = 0
+        if mouse_x >= self.rect.x:
+            max_x = mouse_x
+        else:
+            max_x = self.rect.x
+        if mouse_y >= self.rect.y:
+            max_y = mouse_y
+        else:
+            max_y = self.rect.y
+        dx = max_x - abs(mouse_x - self.rect.x)
+        dy = max_y - abs(mouse_y - self.rect.y)
+        tan = dy / dx
+        self.angle = int(tan * 180 / math.pi)
+        # Определение в какой четверти курсор
+        ddx = mouse_x - self.rect.x
+        ddy = mouse_y - self.rect.y
+        # 1 четверть
+        if ddx >= 0 and ddy >= 0:
+            self.angle += 0
+        # 2 четверть
+        if ddx <= 0 and ddy >= 0:
+            self.angle += 90
+        # 3 четверть
+        if ddx <= 0 and ddy <= 0:
+            self.angle += 180
+        # 4 четверть
+        if ddx >= 0 and ddy <= 0:
+            self.angle += 270
+        print(self.angle)
+        self.image = pygame.transform.rotate(self.image_orig, self.angle)
+
+
+class Sword_hit(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((60, 30))
 
 
 class Mob(pygame.sprite.Sprite):
@@ -161,16 +235,21 @@ clock = pygame.time.Clock()
 
 # Спрайты
 all_sprites = pygame.sprite.Group()
-mobs = pygame.sprite.Group()
 sword_sprite = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
 player = Player()
+sword = Sword()
+sword_sprite.add(sword)
 all_sprites.add(player)
+all_sprites.add(sword)
 
 # Цикл игры
 for i in range(8):
     newmob()
 running = True
 while running:
+    # Спавн меча и Работа с ним
+    #sword.rect.midbottom = player.rect.midtop
     # Держим цикл на правильной скорости
     clock.tick(FPS)
     # Ввод процесса (события)
@@ -180,7 +259,7 @@ while running:
             running = False
         # Удар
         if event.type == pygame.MOUSEBUTTONDOWN:
-            player.hit()
+            sword.hit()
 
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
@@ -189,7 +268,6 @@ while running:
 
     # Обновление
     all_sprites.update()
-
     # Рендеринг
     screen.fill(BLACK)
     all_sprites.draw(screen)

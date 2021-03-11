@@ -1,3 +1,5 @@
+import math
+
 # Цвета (R, G, B)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -7,8 +9,8 @@ BLUE = (0, 0, 255)
 
 # Настройка окна
 screen_name = 'ahahaha'
-WIDTH = 1000
-HEIGHT = 800
+WIDTH = 1500
+HEIGHT = 1000
 FPS = 60
 
 # Для мобов
@@ -19,3 +21,8 @@ for i in range(50, WIDTH - 50):
     mobs_values_x.append(i)
 for i in range(50, HEIGHT - 50):
     mobs_values_y.append(i)
+
+# Значение всех тангенсов
+all_tangens = []
+for i in range(360):
+    all_tangens.append(math.tan(i))
