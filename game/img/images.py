@@ -16,4 +16,5 @@ img_dir = path.join(path.dirname(__file__))
 # Картинки
 sword_img = pygame.image.load(path.join(img_dir, 'sword_golden.png')).convert()
 sword_img_mini = pygame.transform.scale(sword_img, (30, 54))
-
+heart_image = pygame.Surface((20, 20))
+heart_image.fill(RED)

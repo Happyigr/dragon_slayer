@@ -63,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
+        self.lives = 3
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
         self.SPEEDBOOST_RELOAD = True
@@ -345,6 +346,13 @@ while running:
     for hit in hits:
         pass
 
+    # Проверка не ударил ли моб игрока
+    hits = pygame.sprite.spritecollide(player, mobs, True)
+    for hit in hits:
+        player.lives -= 1
+        if player.lives == 0:
+            running = False
+
     # Создание портала
     for teleport in teleport_sprites:
         if len(mobs) == 0 and teleport.hidden:
@@ -359,6 +367,7 @@ while running:
     all_sprites.update()
     # Рендеринг
     screen.fill(BLACK)
+    draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     # После отрисовки всего, переворачиваем экран
     pygame.display.flip()
