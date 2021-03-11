@@ -1,6 +1,5 @@
 import random
-import pygame
-import math
+from pygame import *
 from stuff.Methods import *
 from img.images import *
 
@@ -15,7 +14,8 @@ def new_lvl(mobs):
     player.rect.center = (WIDTH / 2, HEIGHT - 50)
     for i in range(mobs):
         newmob()
-    teleport.hide()
+    for teleport in teleport_sprites:
+        teleport.hide()
 
 
 def random_no_0(start, stop):
@@ -62,6 +62,12 @@ class Player(pygame.sprite.Sprite):
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
+        self.speed = 5
+        self.SPEEDBOOST_TIMEON = 0
+        self.SPEEDBOOST_TIME = 3000
+        self.SPEEDBOOST_RELOAD = True
+        self.SPEEDBOOST_RELOADTIME = 5000
+        self.SPEEDBOOST_ON = False
 
     def update(self):
         key_event = pygame.key.get_pressed()
@@ -70,13 +76,13 @@ class Player(pygame.sprite.Sprite):
         straight = key_event[pygame.K_w]
         back = key_event[pygame.K_s]
         if left:
-            self.rect.x -= 5
+            self.rect.x -= self.speed
         if right:
-            self.rect.x += 5
+            self.rect.x += self.speed
         if straight:
-            self.rect.y -= 5
+            self.rect.y -= self.speed
         if back:
-            self.rect.y += 5
+            self.rect.y += self.speed
         # Проверка выхода за карту
         if self.rect.right >= WIDTH - 50:
             self.rect.right = WIDTH - 50
@@ -86,9 +92,22 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT - 50
         if self.rect.top <= 0 + 50:
             self.rect.top = 0 + 50
+        # Способности
+        # Проверка на перезарядку спидбуста
+        if time - self.SPEEDBOOST_TIMEON >= self.SPEEDBOOST_RELOADTIME:
+            self.SPEEDBOOST_RELOAD = True
+        if not self.SPEEDBOOST_ON and time - self.SPEEDBOOST_TIMEON > self.SPEEDBOOST_TIME:
+            self.speed = 5
 
     def hit(self):
         pass
+
+    def speedboost(self):
+        time = pygame.time.get_ticks()
+        if self.SPEEDBOOST_RELOAD:
+            self.speed = 15
+            self.SPEEDBOOST_TIMEON = time
+            self.SPEEDBOOST_RELOAD = False
 
     # Возвращает координаты в виде x y
     def get_coord(self):
@@ -192,7 +211,7 @@ class Teleport(pygame.sprite.Sprite):
         self.image_orig = self.image
         self.rect = self.image.get_rect()
         self.rect.centerx = x
-        self.rect.y = y
+        self.rect.centery = y
         self.hidden = False
         self.y_orig = y
         self.x_orig = x
@@ -284,20 +303,29 @@ teleport_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 player = Player()
 sword = Sword()
-teleport = Teleport(WIDTH / 2, 50)
+teleport1 = Teleport(WIDTH / 2, 50)
+teleport2 = Teleport(100, HEIGHT / 2)
+teleport3 = Teleport(WIDTH - 100, HEIGHT / 2)
 sword_sprite.add(sword)
+teleport_sprites.add(teleport1)
+teleport_sprites.add(teleport2)
+teleport_sprites.add(teleport3)
 all_sprites.add(player)
 all_sprites.add(sword)
-all_sprites.add(teleport)
+all_sprites.add(teleport1)
+all_sprites.add(teleport2)
+all_sprites.add(teleport3)
 
 # Цикл игры
 for i in range(8):
     newmob()
-teleport.hide()
+for teleport in teleport_sprites:
+    teleport.hide()
 print('b')
 running = True
 while running:
     # Держим цикл на правильной скорости
+    time = pygame.time.get_ticks()
     clock.tick(FPS)
     # Ввод процесса (события)
     for event in pygame.event.get():
@@ -307,6 +335,10 @@ while running:
         # Удар
         if event.type == pygame.MOUSEBUTTONDOWN:
             sword.hit()
+            player.speedboost()
+        # Способность человечка (бвстрый бег)
+        if event.type == pygame.key.get_pressed()[pygame.K_q]:
+            player.speedboost()
 
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
@@ -314,14 +346,14 @@ while running:
         pass
 
     # Создание портала
-    if len(mobs) == 0 and teleport.hidden == True:
-        teleport.unhide()
-        print('ko')
+    for teleport in teleport_sprites:
+        if len(mobs) == 0 and teleport.hidden:
+            teleport.unhide()
+            print('ko')
 
-    # Проверка не стоит ли игрок в портале
-    if teleport.isOver() and teleport.hidden == False:
-        new_lvl(8)
-
+        # Проверка не стоит ли игрок в портале
+        if teleport.isOver() and not teleport.hidden:
+            new_lvl(8)
 
     # Обновление
     all_sprites.update()
