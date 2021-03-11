@@ -178,20 +178,8 @@ class Sword(pygame.sprite.Sprite):
         mouse_coord = pygame.mouse.get_pos()
         mouse_x = mouse_coord[0]
         mouse_y = mouse_coord[1]
-        if -30 <= mouse_x - self.rect.centerx <= 30:
-            self.speedx = 0
-        elif self.rect.centerx <= mouse_x:
-            self.speedx += 5
-        elif self.rect.centerx >= mouse_x:
-            self.speedx += -5
-        if -30 <= mouse_y - self.rect.centery <= 30:
-            self.speedy = 0
-        elif self.rect.centery <= mouse_y:
-            self.speedy += 5
-        elif self.rect.centery >= mouse_y:
-            self.speedy += -5
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
+        self.rect.centerx = mouse_x
+        self.rect.centery = mouse_y
         # Проверка на выход за пределы
         if self.rect.right >= WIDTH - 50:
             self.rect.right = WIDTH - 50
