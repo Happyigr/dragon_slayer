@@ -138,8 +138,9 @@ class Player(pygame.sprite.Sprite):
         # Проверка на перезарядку спидбуста
         if time - self.SPEEDBOOST_TIMEON >= self.SPEEDBOOST_RELOADTIME:
             self.SPEEDBOOST_RELOAD = True
-        if not self.SPEEDBOOST_ON and time - self.SPEEDBOOST_TIMEON > self.SPEEDBOOST_TIME:
+        if time - self.SPEEDBOOST_TIMEON > self.SPEEDBOOST_TIME:
             self.speed = 5
+            self.SPEEDBOOST_ON = False
 
     def hit(self):
         pass
@@ -150,6 +151,7 @@ class Player(pygame.sprite.Sprite):
             self.speed = 15
             self.SPEEDBOOST_TIMEON = time
             self.SPEEDBOOST_RELOAD = False
+            self.SPEEDBOOST_ON = True
 
     # Возвращает координаты в виде x y
     def get_coord(self):
@@ -354,15 +356,11 @@ while running:
     if game_over:
         lvl_num = 1
         show_go_screen()
-        show_lvl_screen(lvl_num)
         for i in mobs.sprites():
-            print('0')
             i.kill()
-        for i in range(8):
-            newmob()
-        for teleport in teleport_sprites:
-            teleport.hide()
+        new_lvl(8, lvl_num)
         player.lives = 3
+        player.SPEEDBOOST_TIMEON = 0
         game_over = False
     # Держим цикл на правильной скорости
     time = pygame.time.get_ticks()
