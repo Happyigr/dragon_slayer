@@ -11,11 +11,19 @@ def newmob():
     mobs.add(m)
 
 
+def new_lvl(mobs):
+    player.rect.center = (WIDTH / 2, HEIGHT - 50)
+    for i in range(mobs):
+        newmob()
+    teleport.hide()
+
+
 def random_no_0(start, stop):
     time = 0
     while time == 0:
         time = random.randrange(start, stop)
     return time
+
 
 # не нужно
 def teleport_spawn(x, y):
@@ -186,6 +194,8 @@ class Teleport(pygame.sprite.Sprite):
         self.rect.centerx = x
         self.rect.y = y
         self.hidden = False
+        self.y_orig = y
+        self.x_orig = x
 
     def update(self):
         pass
@@ -201,11 +211,11 @@ class Teleport(pygame.sprite.Sprite):
         self.hidden = True
 
     def unhide(self):
-        self.image = pygame.Surface((100, 100))
+        self.image = self.image_orig
         self.image.fill(BLUE)
         self.rect = self.image.get_rect()
-        self.rect.centerx = WIDTH / 2
-        self.rect.y = 50
+        self.rect.centerx = self.x_orig
+        self.rect.y = self.y_orig
         self.hidden = False
 
 
@@ -309,8 +319,9 @@ while running:
         print('ko')
 
     # Проверка не стоит ли игрок в портале
-    if teleport.isOver():
-        print('a')
+    if teleport.isOver() and teleport.hidden == False:
+        new_lvl(8)
+
 
     # Обновление
     all_sprites.update()
