@@ -4,6 +4,7 @@ import math
 from stuff.Methods import *
 from img.images import *
 
+
 def newmob():
     m = Mob()
     all_sprites.add(m)
@@ -16,6 +17,12 @@ def random_no_0(start, stop):
         time = random.randrange(start, stop)
     return time
 
+# не нужно
+def teleport_spawn(x, y):
+    portal = Teleport(x, y)
+    portal.add(all_sprites)
+    portal.add(teleport_sprites)
+
 
 # Скорость для движения к игроку в виде x y
 def to_player_go(mob):
@@ -25,7 +32,7 @@ def to_player_go(mob):
     Sy = player.get_coord()[1] - mob.get_coord()[1]
     speedx = Sx / time
     speedy = Sy / time
-    while not (-5 <= speedx <= 5) and not(-5 <= speedy <= 5) and speedy == 0 and speedx == 0:
+    while not (-5 <= speedx <= 5) and not (-5 <= speedy <= 5) and speedy == 0 and speedx == 0:
         time += 5
         speedy = Sy / time
         speedx = Sx / time
@@ -46,7 +53,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface((50, 50))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.rect.center = (WIDTH / 2, HEIGHT - 50)
 
     def update(self):
         key_event = pygame.key.get_pressed()
@@ -169,10 +176,37 @@ class Sword(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image_orig, self.angle)
 
 
-class Sword_hit(pygame.sprite.Sprite):
-    def __init__(self):
+class Teleport(pygame.sprite.Sprite):
+    def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((60, 30))
+        self.image = pygame.Surface((100, 100))
+        self.image.fill(BLUE)
+        self.image_orig = self.image
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.y = y
+        self.hidden = False
+
+    def update(self):
+        pass
+
+    def isOver(self):
+        if self.rect.left <= player.rect.centerx <= self.rect.right and \
+                self.rect.bottom >= player.rect.centery >= self.rect.top:
+            return True
+
+    def hide(self):
+        self.image = pygame.Surface((0, 0))
+        self.rect = self.image.get_rect()
+        self.hidden = True
+
+    def unhide(self):
+        self.image = pygame.Surface((100, 100))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = WIDTH / 2
+        self.rect.y = 50
+        self.hidden = False
 
 
 class Mob(pygame.sprite.Sprite):
@@ -236,20 +270,23 @@ clock = pygame.time.Clock()
 # Спрайты
 all_sprites = pygame.sprite.Group()
 sword_sprite = pygame.sprite.Group()
+teleport_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 player = Player()
 sword = Sword()
+teleport = Teleport(WIDTH / 2, 50)
 sword_sprite.add(sword)
 all_sprites.add(player)
 all_sprites.add(sword)
+all_sprites.add(teleport)
 
 # Цикл игры
 for i in range(8):
     newmob()
+teleport.hide()
+print('b')
 running = True
 while running:
-    # Спавн меча и Работа с ним
-    #sword.rect.midbottom = player.rect.midtop
     # Держим цикл на правильной скорости
     clock.tick(FPS)
     # Ввод процесса (события)
@@ -264,7 +301,16 @@ while running:
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
     for hit in hits:
-        newmob()
+        pass
+
+    # Создание портала
+    if len(mobs) == 0 and teleport.hidden == True:
+        teleport.unhide()
+        print('ko')
+
+    # Проверка не стоит ли игрок в портале
+    if teleport.isOver():
+        print('a')
 
     # Обновление
     all_sprites.update()
