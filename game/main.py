@@ -10,9 +10,32 @@ def newmob():
     mobs.add(m)
 
 
+def show_lvl_screen(lvl):
+    screen.fill(BLACK)
+    draw_text(screen, str('Уровень ' + str(lvl)), 100, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, 'Q для start', 50, WIDTH / 2, HEIGHT - 100)
+    pygame.display.flip()
+    lvl = True
+    while lvl:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    lvl = False
+
+
+
 def show_go_screen():
     screen.fill(BLACK)
     draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
+    draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
+    draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
+    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',\
+              30, WIDTH / 2, HEIGHT / 2 + 100)
+    draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
+    draw_text(screen, 'Нажми пробел для того чтобы начать игру.', 40, WIDTH / 2, HEIGHT - 100)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -22,12 +45,12 @@ def show_go_screen():
             if event.type == pygame.QUIT:
                 quit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    print('c')
+                if event.key == pygame.K_SPACE:
                     waiting = False
 
 
-def new_lvl(mobs):
+def new_lvl(mobs, lvl):
+    show_lvl_screen(lvl)
     player.rect.center = (WIDTH / 2, HEIGHT - 50)
     for i in range(mobs):
         newmob()
@@ -81,6 +104,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
         self.lives = 3
+        self.immune_time = 3000
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
         self.SPEEDBOOST_RELOAD = True
@@ -119,9 +143,6 @@ class Player(pygame.sprite.Sprite):
 
     def hit(self):
         pass
-
-    def immune(self):
-        self.rect = None
 
     def speedboost(self):
         time = pygame.time.get_ticks()
@@ -338,17 +359,22 @@ all_sprites.add(teleport2)
 all_sprites.add(teleport3)
 
 # Цикл игры
-print('b')
+new_lvl_time = 0
 running = True
 game_over = True
 while running:
     if game_over:
+        lvl_num = 1
         show_go_screen()
-        print('a')
+        show_lvl_screen(lvl_num)
+        for i in mobs.sprites():
+            print('0')
+            i.kill()
         for i in range(8):
             newmob()
         for teleport in teleport_sprites:
             teleport.hide()
+        player.lives = 3
         game_over = False
     # Держим цикл на правильной скорости
     time = pygame.time.get_ticks()
@@ -372,21 +398,22 @@ while running:
         pass
 
     # Проверка не ударил ли моб игрока
-    hits = pygame.sprite.spritecollide(player, mobs, True)
-    for hit in hits:
-        player.lives -= 1
-        if player.lives == 0:
-            game_over = True
+    if time - new_lvl_time > player.immune_time:
+        hits = pygame.sprite.spritecollide(player, mobs, True)
+        for hit in hits:
+            player.lives -= 1
+            if player.lives == 0:
+                game_over = True
 
     # Создание портала
     for teleport in teleport_sprites:
         if len(mobs) == 0 and teleport.hidden:
             teleport.unhide()
-            print('ko')
-
         # Проверка не стоит ли игрок в портале
         if teleport.isOver() and not teleport.hidden:
-            new_lvl(8)
+            lvl_num += 1
+            new_lvl_time = time
+            new_lvl(8, lvl_num)
 
     # Обновление
     all_sprites.update()

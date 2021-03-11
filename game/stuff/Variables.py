@@ -21,8 +21,3 @@ for i in range(50, WIDTH - 50):
     mobs_values_x.append(i)
 for i in range(50, HEIGHT - 50):
     mobs_values_y.append(i)
-
-# Значение всех тангенсов
-all_tangens = []
-for i in range(360):
-    all_tangens.append(math.tan(i))
