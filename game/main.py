@@ -1,5 +1,5 @@
 import random
-from pygame import *
+import pygame
 from stuff.Methods import *
 from img.images import *
 
@@ -8,6 +8,23 @@ def newmob():
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
+
+
+def show_go_screen():
+    screen.fill(BLACK)
+    draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        pygame.display.update()
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    print('c')
+                    waiting = False
 
 
 def new_lvl(mobs):
@@ -102,6 +119,9 @@ class Player(pygame.sprite.Sprite):
 
     def hit(self):
         pass
+
+    def immune(self):
+        self.rect = None
 
     def speedboost(self):
         time = pygame.time.get_ticks()
@@ -318,13 +338,18 @@ all_sprites.add(teleport2)
 all_sprites.add(teleport3)
 
 # Цикл игры
-for i in range(8):
-    newmob()
-for teleport in teleport_sprites:
-    teleport.hide()
 print('b')
 running = True
+game_over = True
 while running:
+    if game_over:
+        show_go_screen()
+        print('a')
+        for i in range(8):
+            newmob()
+        for teleport in teleport_sprites:
+            teleport.hide()
+        game_over = False
     # Держим цикл на правильной скорости
     time = pygame.time.get_ticks()
     clock.tick(FPS)
@@ -351,7 +376,7 @@ while running:
     for hit in hits:
         player.lives -= 1
         if player.lives == 0:
-            running = False
+            game_over = True
 
     # Создание портала
     for teleport in teleport_sprites:

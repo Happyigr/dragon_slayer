@@ -1,7 +1,7 @@
 import pygame
 from stuff.Variables import *
 
-font_name = ''
+font_name = pygame.font.match_font('arial')
 
 
 def draw_text(surf, text, size, x, y):
