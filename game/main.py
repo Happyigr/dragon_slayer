@@ -1,7 +1,33 @@
 import random
 import pygame
+from stuff.Button import *
 from stuff.Methods import *
 from img.images import *
+
+
+def map_save():
+    pass
+
+
+def show_setting_screen():
+    setting = True
+    screen.fill(BLACK)
+    draw_text(screen, 'Настройки', 40, WIDTH / 2, 80)
+    for button in setting_buttons:
+        button.draw(screen, WHITE)
+    pygame.display.flip()
+    while setting:
+        mouse = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            for button in setting_buttons:
+                if button.isOver(mouse) and button == exit_button and event.type == pygame.MOUSEBUTTONDOWN:
+                    quit()
+                if button.isOver(mouse) and button == back_button and event.type == pygame.MOUSEBUTTONDOWN:
+                    setting = False
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.KEYDOWN:
+                pass
 
 
 def newmob():
@@ -20,7 +46,7 @@ def show_lvl_screen(lvl):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     lvl = False
 
@@ -31,7 +57,7 @@ def show_go_screen():
     draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
     draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
     draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
-    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',\
+    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
               30, WIDTH / 2, HEIGHT / 2 + 100)
     draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
     draw_text(screen, 'Нажми пробел для того чтобы начать игру.', 40, WIDTH / 2, HEIGHT - 100)
@@ -371,6 +397,13 @@ speedboost = Abilities(speedboost_img_mini, 75, 75)
 abilites_sprites.add(speedboost)
 all_sprites.add(speedboost)
 
+# Кнопки
+setting_buttons = []
+exit_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Выход', 30)
+back_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Назад', 30)
+setting_buttons.append(exit_button)
+setting_buttons.append(back_button)
+
 # Цикл игры
 new_lvl_time = 0
 running = True
@@ -397,11 +430,11 @@ while running:
             running = False
         # Удар
         if event.type == pygame.MOUSEBUTTONDOWN:
-            sword.hit()
             player.speedboost()
-        # Способность человечка (бвстрый бег)
-        if event.type == pygame.key.get_pressed()[pygame.K_q]:
-            player.speedboost()
+        # Настройки
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                show_setting_screen()
 
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
@@ -429,6 +462,7 @@ while running:
     # Обновление
     all_sprites.update()
     # Рендеринг
+    draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     # После отрисовки всего, переворачиваем экран
