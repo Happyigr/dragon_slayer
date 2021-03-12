@@ -25,7 +25,6 @@ def show_lvl_screen(lvl):
                     lvl = False
 
 
-
 def show_go_screen():
     screen.fill(BLACK)
     draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
@@ -321,6 +320,24 @@ class Mob(pygame.sprite.Sprite):
         return coord
 
 
+class Abilities(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.image_orig = img
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+    def update(self):
+        reload = 5 - int((int(time - player.SPEEDBOOST_TIMEON)) / 1000)
+        if not player.SPEEDBOOST_RELOAD:
+            self.image = pygame.Surface((0, 0))
+            draw_text(screen, str(reload), 30, self.rect.centerx, self.rect.centery)
+        else:
+            self.image = self.image_orig
+
+
 # Создаем игру и окно
 pygame.init()
 pygame.mixer.init()
@@ -348,11 +365,19 @@ all_sprites.add(teleport1)
 all_sprites.add(teleport2)
 all_sprites.add(teleport3)
 
+# Способности
+abilites_sprites = pygame.sprite.Group()
+speedboost = Abilities(speedboost_img_mini, 75, 75)
+abilites_sprites.add(speedboost)
+all_sprites.add(speedboost)
+
 # Цикл игры
 new_lvl_time = 0
 running = True
 game_over = True
 while running:
+    time = pygame.time.get_ticks()
+    screen.fill(BLACK)
     if game_over:
         lvl_num = 1
         show_go_screen()
@@ -404,7 +429,6 @@ while running:
     # Обновление
     all_sprites.update()
     # Рендеринг
-    screen.fill(BLACK)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     # После отрисовки всего, переворачиваем экран
