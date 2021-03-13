@@ -6,6 +6,9 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+GREY = (220,220,220)
+BROWN = (221, 153, 102)
 
 # Настройка окна
 screen_name = 'ahahaha'
@@ -17,7 +20,10 @@ FPS = 60
 # Значения для спавна мобов
 mobs_values_x = []
 mobs_values_y = []
+mobs_values_player_spawn_x = []
+mobs_values_player_spawn_y = []
 for i in range(50, WIDTH - 50):
     mobs_values_x.append(i)
-for i in range(50, HEIGHT - 50):
+for i in range(50, HEIGHT - 200):
     mobs_values_y.append(i)
+

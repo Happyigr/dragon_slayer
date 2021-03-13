@@ -5,10 +5,6 @@ from stuff.Methods import *
 from img.images import *
 
 
-def map_save():
-    pass
-
-
 def show_setting_screen():
     setting = True
     screen.fill(BLACK)
@@ -81,6 +77,22 @@ def new_lvl(mobs, lvl):
         newmob()
     for teleport in teleport_sprites:
         teleport.hide()
+    for coin in coins_sprites:
+        coin.kill()
+
+
+def newcoin(x, y):
+    coin = Coin(x, y)
+    all_sprites.add(coin)
+    coins_sprites.add(coin)
+
+
+def coin_mob_drop(x, y):
+    coin_amount = random.randrange(1, 5)
+    for coin in range(coin_amount):
+        coin_x = random.randrange(-50, 50) + x
+        coin_y = random.randrange(-50, 50) + y
+        newcoin(coin_x, coin_y)
 
 
 def random_no_0(start, stop):
@@ -364,6 +376,36 @@ class Abilities(pygame.sprite.Sprite):
             self.image = self.image_orig
 
 
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        if random.random() >= 0.8:
+            self.image = pygame.Surface((20, 20))
+            self.image.fill(YELLOW)
+            self.cost = 10
+        elif random.random() >= 0.5:
+            self.image = pygame.Surface((15, 15))
+            self.image.fill(GREY)
+            self.cost = 5
+        else:
+            self.image = pygame.Surface((10, 10))
+            self.image.fill(BROWN)
+            self.cost = 1
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+    def update(self):
+        if self.rect.right >= WIDTH - 50:
+            self.rect.right = WIDTH - 50
+        if self.rect.left <= 0 + 50:
+            self.rect.left = 0 + 50
+        if self.rect.bottom >= HEIGHT - 50:
+            self.rect.bottom = HEIGHT - 50
+        if self.rect.top <= 0 + 50:
+            self.rect.top = 0 + 50
+
+
 # Создаем игру и окно
 pygame.init()
 pygame.mixer.init()
@@ -376,6 +418,7 @@ all_sprites = pygame.sprite.Group()
 sword_sprite = pygame.sprite.Group()
 teleport_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
+coins_sprites = pygame.sprite.Group()
 player = Player()
 sword = Sword()
 teleport1 = Teleport(WIDTH / 2, 50)
@@ -408,6 +451,7 @@ setting_buttons.append(back_button)
 new_lvl_time = 0
 running = True
 game_over = True
+money = 0
 while running:
     time = pygame.time.get_ticks()
     screen.fill(BLACK)
@@ -439,7 +483,7 @@ while running:
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
     for hit in hits:
-        pass
+        coin_mob_drop(hit.rect.centerx, hit.rect.centery)
 
     # Проверка не ударил ли моб игрока
     if time - new_lvl_time > player.immune_time:
@@ -448,6 +492,11 @@ while running:
             player.lives -= 1
             if player.lives == 0:
                 game_over = True
+
+    # Проверка сбора монеток игроком
+    hits = pygame.sprite.spritecollide(player, coins_sprites, True)
+    for hit in hits:
+        money += hit.cost
 
     # Создание портала
     for teleport in teleport_sprites:
@@ -463,6 +512,7 @@ while running:
     all_sprites.update()
     # Рендеринг
     draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
+    draw_text(screen, (str(money) + ' $'), 30, 120, HEIGHT - 100)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     # После отрисовки всего, переворачиваем экран
