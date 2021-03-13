@@ -55,7 +55,7 @@ def show_go_screen():
     screen.fill(BLACK)
     draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
     draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
-    draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, 'Меч бегает за курсором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
     draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
     draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
               30, WIDTH / 2, HEIGHT / 2 + 100)
