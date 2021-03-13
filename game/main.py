@@ -26,6 +26,34 @@ def show_setting_screen():
                 pass
 
 
+def show_upgrade_screen():
+    pass
+
+
+def show_info_screen():
+    screen.fill(BLACK)
+    draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
+    draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
+    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
+              30, WIDTH / 2, HEIGHT / 2 + 100)
+    draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
+    for button in info_buttons:
+        button.draw(screen)
+    pygame.display.flip()
+    info = True
+    while info:
+        mouse = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in info_buttons:
+                    if button.isOver(mouse):
+                        if button == back_button:
+                            info = False
+
+
 def newmob():
     m = Mob()
     all_sprites.add(m)
@@ -47,24 +75,30 @@ def show_lvl_screen(lvl):
                     lvl = False
 
 
-def show_go_screen():
-    screen.fill(BLACK)
-    draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
-    draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
-    draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
-    draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
-    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
-              30, WIDTH / 2, HEIGHT / 2 + 100)
-    draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-    draw_text(screen, 'Нажми пробел для того чтобы начать игру.', 40, WIDTH / 2, HEIGHT - 100)
-    pygame.display.flip()
+def show_menu_screen():
     waiting = True
     while waiting:
-        pygame.display.update()
+        screen.fill(BLACK)
+        draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
+        for button in menu_buttons:
+            button.draw(screen)
+        mouse = pygame.mouse.get_pos()
+        pygame.display.flip()
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in menu_buttons:
+                    if button.isOver(mouse):
+                        if button == exit_button:
+                            quit()
+                        if button == info_button:
+                            show_info_screen()
+                        if button == upgrade_button:
+                            show_upgrade_screen()
+                        if button == play_button:
+                            waiting = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     waiting = False
@@ -446,6 +480,16 @@ exit_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Вых�
 back_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Назад', 30)
 setting_buttons.append(exit_button)
 setting_buttons.append(back_button)
+menu_buttons = []
+info_buttons = []
+info_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Инфо', 30)
+upgrade_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 250, 200, 50, 'Улучшение', 30)
+play_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 325, 200, 50, 'Играть', 30)
+menu_buttons.append(info_button)
+menu_buttons.append(upgrade_button)
+menu_buttons.append(play_button)
+menu_buttons.append(exit_button)
+info_buttons.append(back_button)
 
 # Цикл игры
 new_lvl_time = 0
@@ -457,7 +501,7 @@ while running:
     screen.fill(BLACK)
     if game_over:
         lvl_num = 1
-        show_go_screen()
+        show_menu_screen()
         for i in mobs.sprites():
             i.kill()
         new_lvl(8, lvl_num)
@@ -479,6 +523,10 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 show_setting_screen()
+            if event.key == pygame.K_e:
+                lvl_num += 1
+                new_lvl_time = time
+                new_lvl(8, lvl_num)
 
     # Проверка не убил ли меч моба
     hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
@@ -504,9 +552,7 @@ while running:
             teleport.unhide()
         # Проверка не стоит ли игрок в портале
         if teleport.isOver() and not teleport.hidden:
-            lvl_num += 1
-            new_lvl_time = time
-            new_lvl(8, lvl_num)
+            draw_text(screen, 'Нажми Е, чтобы войти в портал', 30, WIDTH / 2, HEIGHT / 2)
 
     # Обновление
     all_sprites.update()
