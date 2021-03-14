@@ -7,87 +7,75 @@ from img.images import *
 
 def show_setting_screen():
     setting = True
-    screen.fill(BLACK)
-    draw_text(screen, 'Настройки', 40, WIDTH / 2, 80)
-    for button in setting_buttons:
-        button.draw(screen, WHITE)
-    pygame.display.flip()
     while setting:
+        clock.tick(FPS)
         mouse = pygame.mouse.get_pos()
+        screen.fill(BLACK)
+        draw_text(screen, 'Настройки', 40, WIDTH / 2, 80)
+        for button in setting_buttons:
+            button.draw(screen)
+            if button.isOver(mouse):
+                button.color = (DARK_BUTTON)
+            else:
+                button.color = (WHITE)
         for event in pygame.event.get():
-            for button in setting_buttons:
-                if button.isOver(mouse) and button == exit_button and event.type == pygame.MOUSEBUTTONDOWN:
-                    quit()
-                if button.isOver(mouse) and button == back_button and event.type == pygame.MOUSEBUTTONDOWN:
-                    setting = False
             if event.type == pygame.QUIT:
                 quit()
-            if event.type == pygame.KEYDOWN:
-                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in setting_buttons:
+                    if button.isOver(mouse):
+                        if button == back_button:
+                            setting = False
+        pygame.display.flip()
 
 
 def show_upgrade_screen():
-    pass
-
-
-def show_info_screen():
-    screen.fill(BLACK)
-    draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
-    draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
-    draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
-    draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
-              30, WIDTH / 2, HEIGHT / 2 + 100)
-    draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-    for button in info_buttons:
-        button.draw(screen)
-    pygame.display.flip()
-    info = True
-    while info:
+    upgrade = True
+    while upgrade:
+        clock.tick(FPS)
         mouse = pygame.mouse.get_pos()
+        screen.fill(BLACK)
+        draw_text(screen, (str(all_money) + ' $'), 30, WIDTH / 2, 30)
+        draw_text(screen, 'Магазин', 56, WIDTH / 2, 100)
+        for button in upgrade_buttons:
+            button.draw(screen)
         for event in pygame.event.get():
+            for button in upgrade_buttons:
+                if button.isOver(mouse):
+                    button.color = (DARK_BUTTON)
+                else:
+                    button.color = (WHITE)
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button in info_buttons:
                     if button.isOver(mouse):
                         if button == back_button:
-                            info = False
-
-
-def newmob():
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
-
-
-def show_lvl_screen(lvl):
-    screen.fill(BLACK)
-    draw_text(screen, str('Уровень ' + str(lvl)), 100, WIDTH / 2, HEIGHT / 2)
-    draw_text(screen, 'Q для start', 50, WIDTH / 2, HEIGHT - 100)
-    pygame.display.flip()
-    lvl = True
-    while lvl:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    lvl = False
+                            upgrade = False
+                        if button == buy_button:
+                            pass
+        pygame.display.flip()
 
 
 def show_menu_screen():
     waiting = True
     while waiting:
+        clock.tick(FPS)
         screen.fill(BLACK)
+        draw_text(screen, (str(all_money) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
         for button in menu_buttons:
             button.draw(screen)
         mouse = pygame.mouse.get_pos()
-        pygame.display.flip()
-        clock.tick(FPS)
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            for button in menu_buttons:
+                if button.isOver(mouse):
+                    button.color = (DARK_BUTTON)
+                else:
+                    button.color = (WHITE)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button in menu_buttons:
                     if button.isOver(mouse):
@@ -99,9 +87,59 @@ def show_menu_screen():
                             show_upgrade_screen()
                         if button == play_button:
                             waiting = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    waiting = False
+        pygame.display.flip()
+
+
+def show_info_screen():
+    info = True
+    while info:
+        clock.tick(FPS)
+        mouse = pygame.mouse.get_pos()
+        screen.fill(BLACK)
+        draw_text(screen, 'Правила', 50, WIDTH / 2, HEIGHT / 2 - 100)
+        draw_text(screen, 'Меч бегает за крусором, ты должен убивать им всех врагов.', 30, WIDTH / 2, HEIGHT / 2)
+        draw_text(screen, 'Одновременно ты (герой) должен уворачиваться от врагов', 30, WIDTH / 2, HEIGHT / 2 + 50)
+        draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
+                  30, WIDTH / 2, HEIGHT / 2 + 100)
+        draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
+        for button in info_buttons:
+            button.draw(screen)
+        for event in pygame.event.get():
+            for button in info_buttons:
+                if button.isOver(mouse):
+                    button.color = (DARK_BUTTON)
+                else:
+                    button.color = (WHITE)
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in info_buttons:
+                    if button.isOver(mouse):
+                        if button == back_button:
+                            info = False
+        pygame.display.flip()
+
+
+def show_lvl_screen(lvl):
+    screen.fill(BLACK)
+    draw_text(screen, str('Уровень ' + str(lvl)), 100, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, 'Q для start', 50, WIDTH / 2, HEIGHT - 100)
+    pygame.display.flip()
+    lvl = True
+    while lvl:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    lvl = False
+
+
+def newmob():
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
 
 
 def new_lvl(mobs, lvl):
@@ -175,7 +213,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
         self.lives = 3
-        self.immune_time = 3000
+        #self.immune_time = 3000
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
         self.SPEEDBOOST_RELOAD = True
@@ -482,20 +520,23 @@ setting_buttons.append(exit_button)
 setting_buttons.append(back_button)
 menu_buttons = []
 info_buttons = []
+upgrade_buttons = []
 info_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Инфо', 30)
 upgrade_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 250, 200, 50, 'Улучшение', 30)
 play_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 325, 200, 50, 'Играть', 30)
+buy_button = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 250, 200, 50, 'Купить', 30)
 menu_buttons.append(info_button)
 menu_buttons.append(upgrade_button)
 menu_buttons.append(play_button)
 menu_buttons.append(exit_button)
 info_buttons.append(back_button)
+upgrade_buttons.append(back_button)
+upgrade_buttons.append(buy_button)
 
 # Цикл игры
 new_lvl_time = 0
 running = True
 game_over = True
-money = 0
 while running:
     time = pygame.time.get_ticks()
     screen.fill(BLACK)
@@ -534,7 +575,7 @@ while running:
         coin_mob_drop(hit.rect.centerx, hit.rect.centery)
 
     # Проверка не ударил ли моб игрока
-    if time - new_lvl_time > player.immune_time:
+    if time - new_lvl_time:
         hits = pygame.sprite.spritecollide(player, mobs, True)
         for hit in hits:
             player.lives -= 1
@@ -544,7 +585,7 @@ while running:
     # Проверка сбора монеток игроком
     hits = pygame.sprite.spritecollide(player, coins_sprites, True)
     for hit in hits:
-        money += hit.cost
+        all_money += hit.cost
 
     # Создание портала
     for teleport in teleport_sprites:
@@ -558,9 +599,10 @@ while running:
     all_sprites.update()
     # Рендеринг
     draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
-    draw_text(screen, (str(money) + ' $'), 30, 120, HEIGHT - 100)
+    draw_text(screen, (str(all_money) + ' $'), 30, 120, HEIGHT - 100)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
+    pygame.display.update()
     # После отрисовки всего, переворачиваем экран
     pygame.display.flip()
 
