@@ -26,6 +26,8 @@ def show_setting_screen():
                     if button.isOver(mouse):
                         if button == back_button:
                             setting = False
+                        if button == exit_button:
+                            quit()
         pygame.display.flip()
 
 
