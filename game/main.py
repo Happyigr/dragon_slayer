@@ -108,6 +108,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
+        draw_text(screen, 'версия игры: 0.0.0.4', 30, WIDTH / 2, HEIGHT - 50)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -219,6 +220,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
         self.lives = 3
+
         #self.immune_time = 3000
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
@@ -523,7 +525,7 @@ setting_buttons = []
 menu_buttons = []
 info_buttons = []
 shop_buttons = []
-exit_button_all = Button(WHITE, 100, HEIGHT - 100, 200, 50, 'Выход', 30)
+exit_button_all = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Выход', 30)
 # Кнопки Настроек
 back_button_setting = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 250, 200, 50, 'Продолжить', 30)
 in_menu_button_settings = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'В меню', 30)
