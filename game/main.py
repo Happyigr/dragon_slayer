@@ -41,6 +41,8 @@ def show_shop_screen():
         clock.tick(FPS)
         mouse = pygame.mouse.get_pos()
         screen.fill(BLACK)
+        item_sprites.draw(screen)
+        item_sprites.update()
         draw_text(screen, (str(all_money) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, 'Магазин', 56, WIDTH / 2, 100)
         for button in shop_buttons:
@@ -54,6 +56,14 @@ def show_shop_screen():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                for item in item_sprites:
+                    if item.isOver(mouse):
+                        if item == armor_1_button_shop:
+                            item.chosen = True
+                        elif item == armor_2_button_shop:
+                            item.chosen = True
+                        elif item == armor_3_button_shop:
+                            item.chosen = True
                 for button in shop_buttons:
                     if button.isOver(mouse):
                         if button == back_button_shop:
@@ -486,6 +496,28 @@ class Coin(pygame.sprite.Sprite):
             self.rect.top = 0 + 50
 
 
+class Item(pygame.sprite.Sprite):
+    def __init__(self, image, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.chosen = False
+
+    def isOver(self, pos):
+        # Pos is the mouse position or a tuple of (x,y) coordinates
+        if self.rect.x < pos[0] < self.rect.x + self.rect.width:
+            if self.rect.y < pos[1] < self.rect.y + self.rect.height:
+                return True
+
+        return False
+
+    def update(self):
+        if self.chosen:
+            draw_text(screen, 'Выбрано', 30, self.rect.midbottom[0], self.rect.bottom)
+
+
 # Создаем игру и окно
 pygame.init()
 pygame.mixer.init()
@@ -540,7 +572,13 @@ buy_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'К�
 back_button_info = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Назад', 30)
 
 # Товары
-armor_1_button_shop = Button_img(armor_1_img, 300, 300)
+armor_1_button_shop = Item(armor_1_img, 300, 300)
+armor_2_button_shop = Item(armor_2_img, 450, 300)
+armor_3_button_shop = Item(armor_3_img, 600, 300)
+item_sprites = pygame.sprite.Group()
+item_sprites.add(armor_1_button_shop)
+item_sprites.add(armor_2_button_shop)
+item_sprites.add(armor_3_button_shop)
 
 # Добавление кнопок в списки
 setting_buttons.append(exit_button_all)
@@ -552,7 +590,6 @@ menu_buttons.append(play_button_menu)
 menu_buttons.append(upgrade_button_menu)
 shop_buttons.append(back_button_shop)
 shop_buttons.append(buy_button_shop)
-shop_buttons.append(armor_1_button_shop)
 info_buttons.append(back_button_info)
 
 # Цикл игры
