@@ -1,8 +1,21 @@
 import random
 import pygame
+from stuff.Variables import *
 from stuff.Button import *
 from stuff.Methods import *
 from img.images import *
+
+
+def sword_choose():
+    if not len(sword_sprites) == 0:
+        for i in sword_sprites:
+            i.kill
+    for i in item_sprites:
+        if i.chosen:
+            sword = Sword(i.damage, i.rate)
+            sword_sprites.add(sword)
+            all_sprites.add(sword)
+    return sword
 
 
 def show_setting_screen():
@@ -36,8 +49,8 @@ def show_setting_screen():
 
 
 def show_shop_screen():
-    upgrade = True
-    while upgrade:
+    shop = True
+    while shop:
         clock.tick(FPS)
         mouse = pygame.mouse.get_pos()
         screen.fill(BLACK)
@@ -56,18 +69,21 @@ def show_shop_screen():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # Выбор предмета
                 for item in item_sprites:
                     if item.isOver(mouse):
-                        if item == armor_1_button_shop:
+                        for sword in item_sprites:
+                            sword.chosen = False
+                        if item == sword_1_item:
                             item.chosen = True
-                        elif item == armor_2_button_shop:
+                        elif item == sword_2_item:
                             item.chosen = True
-                        elif item == armor_3_button_shop:
+                        elif item == sword_3_item:
                             item.chosen = True
                 for button in shop_buttons:
                     if button.isOver(mouse):
                         if button == back_button_shop:
-                            upgrade = False
+                            shop = False
                         if button == buy_button_shop:
                             pass
         pygame.display.flip()
@@ -118,7 +134,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-        draw_text(screen, 'версия игры: 0.0.0.4', 30, WIDTH / 2, HEIGHT - 50)
+        draw_text(screen, 'версия игры: 0.0.0.4', 25, WIDTH / 2, HEIGHT - 40)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -287,7 +303,7 @@ class Player(pygame.sprite.Sprite):
 
 
 class Sword(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, damage, rate):
         pygame.sprite.Sprite.__init__(self)
         self.image = sword_img_mini
         self.image_orig = self.image
@@ -296,11 +312,11 @@ class Sword(pygame.sprite.Sprite):
         self.rect.midbottom = player.rect.center
         self.x = self.rect.x
         self.y = self.rect.y
-        self.speedx = 0
-        self.speedy = 0
-        self.damage = None
+        self.damage = damage
+        self.rate = rate
         self.range = None
         self.angle = 0
+        self.last_hit = 0
 
     def update(self):
         # ходьба меча
@@ -321,45 +337,6 @@ class Sword(pygame.sprite.Sprite):
 
     def hit(self):
         pass
-
-    # не работает
-    def rotate(self):
-        mouse_coord = pygame.mouse.get_pos()
-        mouse_x = mouse_coord[0]
-        mouse_y = mouse_coord[1]
-        # Поворот меча
-        self.angle = 0
-        max_x = 0
-        max_y = 0
-        if mouse_x >= self.rect.x:
-            max_x = mouse_x
-        else:
-            max_x = self.rect.x
-        if mouse_y >= self.rect.y:
-            max_y = mouse_y
-        else:
-            max_y = self.rect.y
-        dx = max_x - abs(mouse_x - self.rect.x)
-        dy = max_y - abs(mouse_y - self.rect.y)
-        tan = dy / dx
-        self.angle = int(tan * 180 / math.pi)
-        # Определение в какой четверти курсор
-        ddx = mouse_x - self.rect.x
-        ddy = mouse_y - self.rect.y
-        # 1 четверть
-        if ddx >= 0 and ddy >= 0:
-            self.angle += 0
-        # 2 четверть
-        if ddx <= 0 and ddy >= 0:
-            self.angle += 90
-        # 3 четверть
-        if ddx <= 0 and ddy <= 0:
-            self.angle += 180
-        # 4 четверть
-        if ddx >= 0 and ddy <= 0:
-            self.angle += 270
-        print(self.angle)
-        self.image = pygame.transform.rotate(self.image_orig, self.angle)
 
 
 class Teleport(pygame.sprite.Sprite):
@@ -402,6 +379,7 @@ class Mob(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((25, 25))
         self.image.fill(RED)
+        self.lives = random.randrange(1, 5)
         self.rect = self.image.get_rect()
         self.rect.x = random.choice(mobs_values_x)
         self.rect.y = random.choice(mobs_values_y)
@@ -415,6 +393,7 @@ class Mob(pygame.sprite.Sprite):
         self.rect.y += self.speedy
         time = pygame.time.get_ticks()
         # Ходьба мобов
+        draw_text(screen, str(self.lives), 30, self.rect.x, self.rect.y)
         if self.changed_speed_time == self.spawn_time:
             self.changed_speed_time += 5000
         if time - self.changed_speed_time >= random.randrange(2000, 4000):
@@ -497,13 +476,16 @@ class Coin(pygame.sprite.Sprite):
 
 
 class Item(pygame.sprite.Sprite):
-    def __init__(self, image, x, y):
+    def __init__(self, image, x, y, cost, damage, rate):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
         self.chosen = False
+        self.cost = cost
+        self.damage = damage
+        self.rate = rate
 
     def isOver(self, pos):
         # Pos is the mouse position or a tuple of (x,y) coordinates
@@ -525,33 +507,6 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(screen_name)
 clock = pygame.time.Clock()
 
-# Спрайты
-all_sprites = pygame.sprite.Group()
-sword_sprite = pygame.sprite.Group()
-teleport_sprites = pygame.sprite.Group()
-mobs = pygame.sprite.Group()
-coins_sprites = pygame.sprite.Group()
-player = Player()
-sword = Sword()
-teleport1 = Teleport(WIDTH / 2, 50)
-teleport2 = Teleport(100, HEIGHT / 2)
-teleport3 = Teleport(WIDTH - 100, HEIGHT / 2)
-sword_sprite.add(sword)
-teleport_sprites.add(teleport1)
-teleport_sprites.add(teleport2)
-teleport_sprites.add(teleport3)
-all_sprites.add(player)
-all_sprites.add(sword)
-all_sprites.add(teleport1)
-all_sprites.add(teleport2)
-all_sprites.add(teleport3)
-
-# Способности
-abilites_sprites = pygame.sprite.Group()
-speedboost = Abilities(speedboost_img_mini, 75, 75)
-abilites_sprites.add(speedboost)
-all_sprites.add(speedboost)
-
 # Кнопки
 setting_buttons = []
 menu_buttons = []
@@ -568,17 +523,17 @@ info_button_menu = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'И
 # Кнопки для магазина
 back_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Назад', 30)
 buy_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Купить', 30)
-# Кнопки для инфо вкладки
+# Кнопки для инфо
 back_button_info = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Назад', 30)
 
 # Товары
-armor_1_button_shop = Item(armor_1_img, 300, 300)
-armor_2_button_shop = Item(armor_2_img, 450, 300)
-armor_3_button_shop = Item(armor_3_img, 600, 300)
+sword_1_item = Item(armor_1_img, 300, 300, 0, 1, 1000)
+sword_2_item = Item(armor_2_img, 450, 300, 100, 2, 700)
+sword_3_item = Item(armor_3_img, 600, 300, 300, 4, 500)
 item_sprites = pygame.sprite.Group()
-item_sprites.add(armor_1_button_shop)
-item_sprites.add(armor_2_button_shop)
-item_sprites.add(armor_3_button_shop)
+item_sprites.add(sword_1_item)
+item_sprites.add(sword_2_item)
+item_sprites.add(sword_3_item)
 
 # Добавление кнопок в списки
 setting_buttons.append(exit_button_all)
@@ -592,16 +547,44 @@ shop_buttons.append(back_button_shop)
 shop_buttons.append(buy_button_shop)
 info_buttons.append(back_button_info)
 
+# Спрайты
+all_sprites = pygame.sprite.Group()
+sword_sprites = pygame.sprite.Group()
+teleport_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
+coins_sprites = pygame.sprite.Group()
+player = Player()
+
+# Меч
+teleport1 = Teleport(WIDTH / 2, 50)
+teleport2 = Teleport(100, HEIGHT / 2)
+teleport3 = Teleport(WIDTH - 100, HEIGHT / 2)
+teleport_sprites.add(teleport1)
+teleport_sprites.add(teleport2)
+teleport_sprites.add(teleport3)
+all_sprites.add(player)
+all_sprites.add(teleport1)
+all_sprites.add(teleport2)
+all_sprites.add(teleport3)
+
+# Способности
+abilites_sprites = pygame.sprite.Group()
+speedboost = Abilities(speedboost_img_mini, 75, 75)
+abilites_sprites.add(speedboost)
+all_sprites.add(speedboost)
+
 # Цикл игры
 new_lvl_time = 0
 running = True
 game_over = True
+sword_1_item.chosen = True
 while running:
     time = pygame.time.get_ticks()
     screen.fill(BLACK)
     if game_over:
         lvl_num = 1
         show_menu_screen()
+        sword = sword_choose()
         for i in mobs.sprites():
             i.kill()
         new_lvl(8, lvl_num)
@@ -628,10 +611,15 @@ while running:
                 new_lvl_time = time
                 new_lvl(8, lvl_num)
 
-    # Проверка не убил ли меч моба
-    hits = pygame.sprite.groupcollide(mobs, sword_sprite, True, False, pygame.sprite.collide_circle)
+    # Проверка не ударил ли меч моба
+    hits = pygame.sprite.spritecollide(sword, mobs, False)
     for hit in hits:
-        coin_mob_drop(hit.rect.centerx, hit.rect.centery)
+        if time - sword.last_hit >= sword.rate:
+            sword.last_hit = time
+            hit.lives -= sword.damage
+            if hit.lives <= 0:
+                hit.kill()
+                coin_mob_drop(hit.rect.centerx, hit.rect.centery)
 
     # Проверка не ударил ли моб игрока
     if time - new_lvl_time:
