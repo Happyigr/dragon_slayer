@@ -134,7 +134,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-        draw_text(screen, 'версия игры: 0.0.0.4', 25, WIDTH / 2, HEIGHT - 40)
+        draw_text(screen, 'версия игры: 0.0.0.5', 25, WIDTH / 2, HEIGHT - 40)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
