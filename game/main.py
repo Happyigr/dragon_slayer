@@ -160,7 +160,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-        draw_text(screen, 'версия игры: 0.0.0.5', 25, WIDTH / 2, HEIGHT - 40)
+        draw_text(screen, 'версия игры: 0.0.0.6', 25, WIDTH / 2, HEIGHT - 40)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -361,8 +361,12 @@ class Sword(pygame.sprite.Sprite):
         if self.rect.top <= 0 + 50:
             self.rect.top = 0 + 50
 
-    def hit(self):
-        pass
+    def rotate(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        rel_x, rel_y = mouse_x - self.x, mouse_y - self.y
+        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        self.image = pygame.transform.rotate(self.image_orig, int(angle))
+        self.rect = self.image.get_rect(top=(player.rect.midtop))
 
 
 class Teleport(pygame.sprite.Sprite):
