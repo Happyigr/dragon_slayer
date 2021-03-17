@@ -1,4 +1,5 @@
 import math
+global all_money
 
 # Цвета (R, G, B)
 BLACK = (0, 0, 0)
@@ -29,4 +30,4 @@ for i in range(50, HEIGHT - 200):
     mobs_values_y.append(i)
 
 # Деньги
-all_money = 0
+all_money_gl = 0

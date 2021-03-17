@@ -48,6 +48,37 @@ def show_setting_screen():
         pygame.display.flip()
 
 
+def swords_in_shop(item, num):
+    global all_money_gl
+    if item.num == num:
+        if item_array[num - 1].buyed:
+            for sword in item_sprites:
+                sword.chosen = False
+            item_array[num - 1].chosen = True
+        if not item_array[num - 1].buyed and all_money_gl >= item_array[num - 1].cost:
+            all_money_gl -= item_array[num - 1].cost
+            item_array[num - 1].buyed = True
+        if not item_array[num - 1].buyed and all_money_gl <= item_array[num - 1].cost:
+            no_money = True
+            while no_money:
+                mouse = pygame.mouse.get_pos()
+                clock.tick(FPS)
+                screen.fill(BLACK)
+                no_money_button_shop.draw(screen)
+                draw_text(screen, 'Не хватает денег', 30, WIDTH / 2, HEIGHT / 2)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        quit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if no_money_button_shop.isOver(mouse):
+                            no_money = False
+                    if no_money_button_shop.isOver(mouse):
+                        no_money_button_shop.color = (DARK_BUTTON)
+                    else:
+                        no_money_button_shop.color = (WHITE)
+                pygame.display.flip()
+
+
 def show_shop_screen():
     shop = True
     while shop:
@@ -56,8 +87,11 @@ def show_shop_screen():
         screen.fill(BLACK)
         item_sprites.draw(screen)
         item_sprites.update()
-        draw_text(screen, (str(all_money) + ' $'), 30, WIDTH / 2, 30)
+        draw_text(screen, 'Чтобы купить товар, нажми на него', 30, WIDTH / 2, HEIGHT - 200)
+        draw_text(screen, (str(all_money_gl) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, 'Магазин', 56, WIDTH / 2, 100)
+        draw_text(screen, 'Урон', 30, 150, 414)
+        draw_text(screen, 'Уд/с', 30, 150, 464)
         for button in shop_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -72,20 +106,12 @@ def show_shop_screen():
                 # Выбор предмета
                 for item in item_sprites:
                     if item.isOver(mouse):
-                        for sword in item_sprites:
-                            sword.chosen = False
-                        if item == sword_1_item:
-                            item.chosen = True
-                        elif item == sword_2_item:
-                            item.chosen = True
-                        elif item == sword_3_item:
-                            item.chosen = True
+                        for num in range(len(item_array) + 1):
+                            swords_in_shop(item, num)
                 for button in shop_buttons:
                     if button.isOver(mouse):
                         if button == back_button_shop:
                             shop = False
-                        if button == buy_button_shop:
-                            pass
         pygame.display.flip()
 
 
@@ -94,7 +120,7 @@ def show_menu_screen():
     while waiting:
         clock.tick(FPS)
         screen.fill(BLACK)
-        draw_text(screen, (str(all_money) + ' $'), 30, WIDTH / 2, 30)
+        draw_text(screen, (str(all_money_gl) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
         for button in menu_buttons:
             button.draw(screen)
@@ -475,14 +501,16 @@ class Coin(pygame.sprite.Sprite):
             self.rect.top = 0 + 50
 
 
-class Item(pygame.sprite.Sprite):
-    def __init__(self, image, x, y, cost, damage, rate):
+class Item_sword(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, cost, damage, rate, num):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
+        self.num = num
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
         self.chosen = False
+        self.buyed = False
         self.cost = cost
         self.damage = damage
         self.rate = rate
@@ -496,8 +524,14 @@ class Item(pygame.sprite.Sprite):
         return False
 
     def update(self):
-        if self.chosen:
+        if not self.buyed:
+            draw_text(screen, str(self.cost), 30, self.rect.midbottom[0], self.rect.bottom)
+        if self.buyed and not self.chosen:
+            draw_text(screen, 'Купленно', 30, self.rect.midbottom[0], self.rect.bottom)
+        if self.chosen and self.buyed:
             draw_text(screen, 'Выбрано', 30, self.rect.midbottom[0], self.rect.bottom)
+        draw_text(screen, str(self.damage), 30, self.rect.midbottom[0], self.rect.bottom + 50)
+        draw_text(screen, str(self.rate / 1000), 30, self.rect.midbottom[0], self.rect.bottom + 100)
 
 
 # Создаем игру и окно
@@ -521,19 +555,26 @@ play_button_menu = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 325, 200, 50, 'И
 upgrade_button_menu = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 250, 200, 50, 'Улучшение', 30)
 info_button_menu = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Инфо', 30)
 # Кнопки для магазина
+no_money_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Ок', 30)
 back_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Назад', 30)
-buy_button_shop = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 175, 200, 50, 'Купить', 30)
 # Кнопки для инфо
 back_button_info = Button(WHITE, ((WIDTH / 2) - 100), HEIGHT - 100, 200, 50, 'Назад', 30)
 
 # Товары
-sword_1_item = Item(armor_1_img, 300, 300, 0, 1, 1000)
-sword_2_item = Item(armor_2_img, 450, 300, 100, 2, 700)
-sword_3_item = Item(armor_3_img, 600, 300, 300, 4, 500)
+sword_1_item = Item_sword(armor_1_img, 300, 300, 0, 1, 1000, 1)
+sword_2_item = Item_sword(armor_2_img, 450, 300, 100, 2, 700, 2)
+sword_3_item = Item_sword(armor_3_img, 600, 300, 300, 3, 500, 3)
+sword_4_item = Item_sword(armor_4_img, 750, 300, 500, 1, 200, 4)
 item_sprites = pygame.sprite.Group()
+item_array = []
+item_array.append(sword_1_item)
+item_array.append(sword_2_item)
+item_array.append(sword_3_item)
+item_array.append(sword_4_item)
 item_sprites.add(sword_1_item)
 item_sprites.add(sword_2_item)
 item_sprites.add(sword_3_item)
+item_sprites.add(sword_4_item)
 
 # Добавление кнопок в списки
 setting_buttons.append(exit_button_all)
@@ -544,7 +585,6 @@ menu_buttons.append(info_button_menu)
 menu_buttons.append(play_button_menu)
 menu_buttons.append(upgrade_button_menu)
 shop_buttons.append(back_button_shop)
-shop_buttons.append(buy_button_shop)
 info_buttons.append(back_button_info)
 
 # Спрайты
@@ -578,6 +618,7 @@ new_lvl_time = 0
 running = True
 game_over = True
 sword_1_item.chosen = True
+sword_1_item.buyed = True
 while running:
     time = pygame.time.get_ticks()
     screen.fill(BLACK)
@@ -632,7 +673,7 @@ while running:
     # Проверка сбора монеток игроком
     hits = pygame.sprite.spritecollide(player, coins_sprites, True)
     for hit in hits:
-        all_money += hit.cost
+        all_money_gl += hit.cost
 
     # Создание портала
     for teleport in teleport_sprites:
@@ -646,7 +687,7 @@ while running:
     all_sprites.update()
     # Рендеринг
     draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
-    draw_text(screen, (str(all_money) + ' $'), 30, 120, HEIGHT - 100)
+    draw_text(screen, (str(all_money_gl) + ' $'), 30, 120, HEIGHT - 100)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     pygame.display.update()
