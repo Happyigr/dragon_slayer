@@ -160,7 +160,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-        draw_text(screen, 'версия игры: 0.0.0.6', 25, WIDTH / 2, HEIGHT - 40)
+        draw_text(screen, 'версия игры: 0.0.0.7', 25, WIDTH / 2, HEIGHT - 40)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -272,8 +272,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
         self.lives = 3
-
-        #self.immune_time = 3000
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
         self.SPEEDBOOST_RELOAD = True
@@ -338,6 +336,8 @@ class Sword(pygame.sprite.Sprite):
         self.rect.midbottom = player.rect.center
         self.x = self.rect.x
         self.y = self.rect.y
+        self.speedx = 0
+        self.speedy = 0
         self.damage = damage
         self.rate = rate
         self.range = None
@@ -345,7 +345,6 @@ class Sword(pygame.sprite.Sprite):
         self.last_hit = 0
 
     def update(self):
-        # ходьба меча
         mouse_coord = pygame.mouse.get_pos()
         mouse_x = mouse_coord[0]
         mouse_y = mouse_coord[1]
@@ -360,13 +359,34 @@ class Sword(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT - 50
         if self.rect.top <= 0 + 50:
             self.rect.top = 0 + 50
+        #self.rotate()
+        # ходьба меча
+        self.rect.centerx += self.speedx
+        self.rect.centery += self.speedy
+        if self.rect.centerx > player.rect.centerx + 50:
+            self.rect.centerx = player.rect.centerx + 50
+        if self.rect.centerx < player.rect.centerx - 50:
+            self.rect.centerx = player.rect.centerx - 50
+        if self.rect.centery > player.rect.centery + 50:
+            self.rect.centery = player.rect.centery + 50
+        if self.rect.centery < player.rect.centery - 50:
+            self.rect.centery = player.rect.centery - 50
 
     def rotate(self):
+        # Поворот картинки
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        rel_x, rel_y = mouse_x - self.x, mouse_y - self.y
-        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-        self.image = pygame.transform.rotate(self.image_orig, int(angle))
-        self.rect = self.image.get_rect(top=(player.rect.midtop))
+        rel_x, rel_y = mouse_x - player.rect.x, mouse_y - player.rect.y
+        self.angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        if self.angle >= 360:
+            self.angle = 0
+        self.image = pygame.transform.rotate(self.image_orig, int(self.angle))
+        self.rect = self.image.get_rect(midbottom=(player.rect.midtop))
+        #Поворот по х и у
+        time = 30
+        Sx = player.rect.centerx - mouse_x
+        Sy = player.rect.centery - mouse_y
+        self.speedx = Sx / time
+        self.speedy = Sy / time
 
 
 class Teleport(pygame.sprite.Sprite):
@@ -592,6 +612,7 @@ shop_buttons.append(back_button_shop)
 info_buttons.append(back_button_info)
 
 # Спрайты
+sword_hit_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 sword_sprites = pygame.sprite.Group()
 teleport_sprites = pygame.sprite.Group()
@@ -641,6 +662,7 @@ while running:
     clock.tick(FPS)
     # Ввод процесса (события)
     for event in pygame.event.get():
+
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
@@ -651,10 +673,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 game_over = show_setting_screen()
-            if event.key == pygame.K_e:
-                lvl_num += 1
-                new_lvl_time = time
-                new_lvl(8, lvl_num)
+            for teleport in teleport_sprites:
+                if event.key == pygame.K_e and teleport.isOver():
+                    lvl_num += 1
+                    new_lvl_time = time
+                    new_lvl(8, lvl_num)
 
     # Проверка не ударил ли меч моба
     hits = pygame.sprite.spritecollide(sword, mobs, False)

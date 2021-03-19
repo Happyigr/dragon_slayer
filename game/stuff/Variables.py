@@ -2,7 +2,7 @@ import math
 global all_money
 
 # Цвета (R, G, B)
-BLACK = (0,0 , 0)
+BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 DARK_BUTTON = (150, 150, 150)
 RED = (255, 0, 0)
@@ -30,4 +30,4 @@ for i in range(50, HEIGHT - 200):
     mobs_values_y.append(i)
 
 # Деньги
-all_money_gl = 0
+all_money_gl = 1000
