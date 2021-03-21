@@ -1,5 +1,5 @@
 import pygame
-from stuff.Variables import *
+from game.stuff.Settings import *
 
 font_name = pygame.font.match_font('arial')
 

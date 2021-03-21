@@ -1,5 +1,4 @@
 import math
-global all_money
 
 # Цвета (R, G, B)
 BLACK = (0, 0, 0)
@@ -17,6 +16,7 @@ screen_name = 'ahahaha'
 WIDTH = 1500
 HEIGHT = 1000
 FPS = 60
+WALL_SIZE = 100
 
 # Для мобов
 # Значения для спавна мобов

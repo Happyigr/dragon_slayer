@@ -1,6 +1,6 @@
 # images by Dan Sevenstar -DontMind8-
 
-from stuff.Variables import *
+from game.stuff.Settings import *
 from os import path
 import pygame
 
@@ -20,6 +20,8 @@ heart_image = pygame.Surface((20, 20))
 heart_image.fill(RED)
 speedboost_img = pygame.image.load(path.join(img_dir, '10.png'))
 speedboost_img_mini = pygame.transform.scale(speedboost_img, (75, 75))
+superhit_img = pygame.image.load(path.join(img_dir, '13.png'))
+superhit_img_mini = pygame.transform.scale(superhit_img, (75, 75))
 armor_1_img = pygame.image.load(path.join(img_dir, '18.png'))
 armor_2_img = pygame.image.load(path.join(img_dir, '19.png'))
 armor_3_img = pygame.image.load(path.join(img_dir, '20.png'))

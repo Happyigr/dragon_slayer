@@ -1,9 +1,23 @@
 import random
 import pygame
-from stuff.Variables import *
+from stuff.Settings import *
 from stuff.Button import *
 from stuff.Methods import *
 from img.images import *
+from stuff.Map import *
+
+
+def ability_reload_show(time, name):
+    for abil in abilites_sprites:
+        if abil.ability_name == name:
+            abil.reloaded = False
+            abil.last_time_used = time
+
+
+def sword_hit_ability():
+    hit = Sword_hit()
+    sword_hit_sprites.add(hit)
+    all_sprites.add(hit)
 
 
 def sword_choose():
@@ -160,7 +174,7 @@ def show_info_screen():
         draw_text(screen, 'У тебя есть суперспособность которая увеличивает скорость твоего героя на 3 секунды',
                   30, WIDTH / 2, HEIGHT / 2 + 100)
         draw_text(screen, 'Для применения нажми на ЛКМ', 30, WIDTH / 2, HEIGHT / 2 + 150)
-        draw_text(screen, 'версия игры: 0.0.0.7', 25, WIDTH / 2, HEIGHT - 40)
+        draw_text(screen, 'версия игры: 0.0.0.6', 25, WIDTH / 2, HEIGHT - 40)
         for button in info_buttons:
             button.draw(screen)
         for event in pygame.event.get():
@@ -203,7 +217,7 @@ def newmob():
 
 def new_lvl(mobs, lvl):
     show_lvl_screen(lvl)
-    player.rect.center = (WIDTH / 2, HEIGHT - 50)
+    player.rect.center = (WIDTH / 2, HEIGHT - WALL_SIZE - 50)
     for i in range(mobs):
         newmob()
     for teleport in teleport_sprites:
@@ -272,35 +286,32 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
         self.speed = 5
         self.lives = 3
+        #self.immune_time = 3000
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
         self.SPEEDBOOST_RELOAD = True
         self.SPEEDBOOST_RELOADTIME = 5000
         self.SPEEDBOOST_ON = False
+        self.SUPERHIT_TIMEON = 0
+        self.SUPERHIT_DURATION = 200
+        self.SUPERHIT_RELOAD = True
+        self.SUPERHIT_RELOADTIME = 3000
 
     def update(self):
+        # Проверка выхода за карту + Ходьба
         key_event = pygame.key.get_pressed()
         left = key_event[pygame.K_a]
         right = key_event[pygame.K_d]
         straight = key_event[pygame.K_w]
         back = key_event[pygame.K_s]
-        if left:
+        if left and not self.rect.left - self.speed <= 0 + WALL_SIZE:
             self.rect.x -= self.speed
-        if right:
+        if right and not self.rect.right + self.speed >= WIDTH - WALL_SIZE:
             self.rect.x += self.speed
-        if straight:
+        if straight and not self.rect.top - self.speed <= 0 + WALL_SIZE:
             self.rect.y -= self.speed
-        if back:
+        if back and not self.rect.bottom + self.speed >= HEIGHT - WALL_SIZE:
             self.rect.y += self.speed
-        # Проверка выхода за карту
-        if self.rect.right >= WIDTH - 50:
-            self.rect.right = WIDTH - 50
-        if self.rect.left <= 0 + 50:
-            self.rect.left = 0 + 50
-        if self.rect.bottom >= HEIGHT - 50:
-            self.rect.bottom = HEIGHT - 50
-        if self.rect.top <= 0 + 50:
-            self.rect.top = 0 + 50
         # Способности
         # Проверка на перезарядку спидбуста
         if time - self.SPEEDBOOST_TIMEON >= self.SPEEDBOOST_RELOADTIME:
@@ -308,9 +319,9 @@ class Player(pygame.sprite.Sprite):
         if time - self.SPEEDBOOST_TIMEON > self.SPEEDBOOST_TIME:
             self.speed = 5
             self.SPEEDBOOST_ON = False
-
-    def hit(self):
-        pass
+        # Перезарядка суперудара
+        if time - self.SUPERHIT_TIMEON >= self.SUPERHIT_RELOADTIME:
+            self.SUPERHIT_RELOAD = True
 
     def speedboost(self):
         time = pygame.time.get_ticks()
@@ -350,17 +361,8 @@ class Sword(pygame.sprite.Sprite):
         mouse_y = mouse_coord[1]
         self.rect.centerx = mouse_x
         self.rect.centery = mouse_y
-        # Проверка на выход за пределы
-        if self.rect.right >= WIDTH - 50:
-            self.rect.right = WIDTH - 50
-        if self.rect.left <= 0 + 50:
-            self.rect.left = 0 + 50
-        if self.rect.bottom >= HEIGHT - 50:
-            self.rect.bottom = HEIGHT - 50
-        if self.rect.top <= 0 + 50:
-            self.rect.top = 0 + 50
-        #self.rotate()
         # ходьба меча
+        self.rotate()
         self.rect.centerx += self.speedx
         self.rect.centery += self.speedy
         if self.rect.centerx > player.rect.centerx + 50:
@@ -372,21 +374,35 @@ class Sword(pygame.sprite.Sprite):
         if self.rect.centery < player.rect.centery - 50:
             self.rect.centery = player.rect.centery - 50
 
+
     def rotate(self):
         # Поворот картинки
         mouse_x, mouse_y = pygame.mouse.get_pos()
         rel_x, rel_y = mouse_x - player.rect.x, mouse_y - player.rect.y
-        self.angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        self.angle = (180 / math.pi) * -math.atan2(rel_y, rel_x) - 90
         if self.angle >= 360:
             self.angle = 0
         self.image = pygame.transform.rotate(self.image_orig, int(self.angle))
-        self.rect = self.image.get_rect(midbottom=(player.rect.midtop))
         #Поворот по х и у
         time = 30
         Sx = player.rect.centerx - mouse_x
         Sy = player.rect.centery - mouse_y
         self.speedx = Sx / time
         self.speedy = Sy / time
+
+
+class Sword_hit(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((1000, 1000))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = sword.rect.centerx
+        self.rect.centery = sword.rect.centery
+
+    def update(self):
+        self.rect.centerx = sword.rect.centerx
+        self.rect.centery = sword.rect.centery
 
 
 class Teleport(pygame.sprite.Sprite):
@@ -431,8 +447,8 @@ class Mob(pygame.sprite.Sprite):
         self.image.fill(RED)
         self.lives = random.randrange(1, 5)
         self.rect = self.image.get_rect()
-        self.rect.x = random.choice(mobs_values_x)
-        self.rect.y = random.choice(mobs_values_y)
+        self.rect.x = random.randrange(WALL_SIZE + self.rect.width, WIDTH - WALL_SIZE - self.rect.width)
+        self.rect.y = random.randrange(WALL_SIZE + self.rect.height, HEIGHT - WALL_SIZE - self.rect.height)
         self.spawn_time = pygame.time.get_ticks() + random.randrange(0, 5000)
         self.changed_speed_time = pygame.time.get_ticks()
         self.speedx = random.randrange(-5, 5)
@@ -458,18 +474,14 @@ class Mob(pygame.sprite.Sprite):
                 self.speedy = random.randrange(-5, 5)
             self.changed_speed_time = time
         # Проверка выхода за карту
-        if self.rect.right >= WIDTH - 50:
-            self.rect.right = WIDTH - 50
-            self.speedx = self.speedx * -1
-        if self.rect.left <= 0 + 50:
-            self.rect.left = 0 + 50
-            self.speedx = self.speedx * -1
-        if self.rect.bottom >= HEIGHT - 50:
-            self.rect.bottom = HEIGHT - 50
-            self.speedy = self.speedy * -1
-        if self.rect.top <= 0 + 50:
-            self.rect.top = 0 + 50
-            self.speedy = self.speedy * -1
+        if self.rect.right >= WIDTH - WALL_SIZE:
+            self.speedx *= -1
+        if self.rect.left <= 0 + WALL_SIZE:
+            self.speedx *= -1
+        if self.rect.top <= 0 + WALL_SIZE:
+            self.speedy *= -1
+        if self.rect.bottom >= HEIGHT - WALL_SIZE:
+            self.speedy *= -1
 
     # Возвращает координаты в виде x y
     def get_coord(self):
@@ -478,19 +490,26 @@ class Mob(pygame.sprite.Sprite):
 
 
 class Abilities(pygame.sprite.Sprite):
-    def __init__(self, img, x, y):
+    def __init__(self, img, x, y, reload_time, name):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.image_orig = img
+        self.ability_name = name
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
+        self.last_time_used = 0
+        self.reload_time = reload_time
+        self.reloaded = True
 
     def update(self):
-        reload = 5 - int((int(time - player.SPEEDBOOST_TIMEON)) / 1000)
-        if not player.SPEEDBOOST_RELOAD:
+        time = pygame.time.get_ticks()
+        if not self.reloaded:
+            reload = round(self.reload_time / 1000 - (time / 1000 - self.last_time_used / 1000), 1)
             self.image = pygame.Surface((0, 0))
             draw_text(screen, str(reload), 30, self.rect.centerx, self.rect.centery)
+            if reload <= 0:
+                self.reloaded = True
         else:
             self.image = self.image_orig
 
@@ -513,16 +532,17 @@ class Coin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
+        if self.rect.right >= WIDTH - WALL_SIZE:
+            self.rect.right = WIDTH - WALL_SIZE
+        if self.rect.left <= 0 + WALL_SIZE:
+            self.rect.left = 0 + WALL_SIZE
+        if self.rect.top <= 0 + WALL_SIZE:
+            self.rect.top = 0 + WALL_SIZE
+        if self.rect.bottom >= HEIGHT - WALL_SIZE:
+            self.rect.bottom = HEIGHT - WALL_SIZE
 
     def update(self):
-        if self.rect.right >= WIDTH - 50:
-            self.rect.right = WIDTH - 50
-        if self.rect.left <= 0 + 50:
-            self.rect.left = 0 + 50
-        if self.rect.bottom >= HEIGHT - 50:
-            self.rect.bottom = HEIGHT - 50
-        if self.rect.top <= 0 + 50:
-            self.rect.top = 0 + 50
+        pass
 
 
 class Item_sword(pygame.sprite.Sprite):
@@ -620,10 +640,10 @@ mobs = pygame.sprite.Group()
 coins_sprites = pygame.sprite.Group()
 player = Player()
 
-# Меч
-teleport1 = Teleport(WIDTH / 2, 50)
-teleport2 = Teleport(100, HEIGHT / 2)
-teleport3 = Teleport(WIDTH - 100, HEIGHT / 2)
+# Телепорты
+teleport1 = Teleport(WIDTH / 2, 50 + WALL_SIZE)
+teleport2 = Teleport(100 + WALL_SIZE, HEIGHT / 2)
+teleport3 = Teleport(WIDTH - 100 - WALL_SIZE, HEIGHT / 2)
 teleport_sprites.add(teleport1)
 teleport_sprites.add(teleport2)
 teleport_sprites.add(teleport3)
@@ -633,10 +653,14 @@ all_sprites.add(teleport2)
 all_sprites.add(teleport3)
 
 # Способности
+abilites_names = ['speedboost', 'superhit']
 abilites_sprites = pygame.sprite.Group()
-speedboost = Abilities(speedboost_img_mini, 75, 75)
+speedboost = Abilities(speedboost_img_mini, 75, 75, player.SPEEDBOOST_RELOADTIME, 'speedboost')
+superhit = Abilities(superhit_img_mini, 150, 75, player.SUPERHIT_RELOADTIME, 'superhit')
+abilites_sprites.add(superhit)
 abilites_sprites.add(speedboost)
 all_sprites.add(speedboost)
+all_sprites.add(superhit)
 
 # Цикл игры
 new_lvl_time = 0
@@ -660,17 +684,27 @@ while running:
     # Держим цикл на правильной скорости
     time = pygame.time.get_ticks()
     clock.tick(FPS)
+    # убить спрайт суперудара после того как время удара прошло
+    if time - player.SUPERHIT_TIMEON >= player.SUPERHIT_DURATION:
+        for sword_superhit in sword_hit_sprites:
+            sword_superhit.kill()
     # Ввод процесса (события)
     for event in pygame.event.get():
-
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
-        # Удар
+        # Суперудар
         if event.type == pygame.MOUSEBUTTONDOWN:
-            player.speedboost()
+            if player.SUPERHIT_RELOAD:
+                ability_reload_show(time, 'superhit')
+                player.SUPERHIT_RELOAD = False
+                player.SUPERHIT_TIMEON = time
+                sword_hit_ability()
         # Настройки
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                ability_reload_show(time, 'speedboost')
+                player.speedboost()
             if event.key == pygame.K_ESCAPE:
                 game_over = show_setting_screen()
             for teleport in teleport_sprites:
@@ -683,6 +717,16 @@ while running:
     hits = pygame.sprite.spritecollide(sword, mobs, False)
     for hit in hits:
         if time - sword.last_hit >= sword.rate:
+            sword.last_hit = time
+            hit.lives -= sword.damage
+            if hit.lives <= 0:
+                hit.kill()
+                coin_mob_drop(hit.rect.centerx, hit.rect.centery)
+
+    # Проверка не ударил ли супер хит мобов
+    for sword_hit in sword_hit_sprites:
+        hits = pygame.sprite.spritecollide(sword_hit, mobs, False)
+        for hit in hits:
             sword.last_hit = time
             hit.lives -= sword.damage
             if hit.lives <= 0:
@@ -713,6 +757,8 @@ while running:
     # Обновление
     all_sprites.update()
     # Рендеринг
+    for x, y in world_map:
+        pygame.draw.rect(screen, GREY, (x, y, WALL_SIZE, WALL_SIZE), 2)
     draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
     draw_text(screen, (str(all_money_gl) + ' $'), 30, 120, HEIGHT - 100)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
