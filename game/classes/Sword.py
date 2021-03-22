@@ -60,3 +60,4 @@ class Sword(pygame.sprite.Sprite):
 # Спрайты
 sword = Sword(sword_1_item.damage, sword_1_item.rate)
 sword_sprites = pygame.sprite.Group()
+sword_sprites.add(sword)

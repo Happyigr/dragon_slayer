@@ -32,6 +32,7 @@ def sword_hit_ability():
 
 
 def sword_choose():
+    global sword
     if not len(sword_sprites) == 0:
         for i in sword_sprites:
             i.kill
@@ -155,7 +156,6 @@ while running:
             hit.lives -= sword.damage
             if hit.lives <= 0:
                 hit.kill()
-
 
     # Проверка не ударил ли супер хит мобов
     for sword_hit in sword_hit_sprites:
