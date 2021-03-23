@@ -7,6 +7,7 @@ from game.classes.Coin import *
 from game.classes.Player import *
 from stuff.Map import *
 from stuff.Menu import *
+global all_money
 
 
 # Сбрасывает кд абилки по имени
@@ -97,7 +98,9 @@ all_sprites.add(teleport3)
 all_sprites.add(speedboost)
 all_sprites.add(superhit)
 
+
 # Цикл игры
+all_money = 500
 new_lvl_time = 0
 running = True
 game_over = True
@@ -108,7 +111,7 @@ while running:
     screen.fill(BLACK)
     if game_over:
         lvl_num = 1
-        show_menu_screen()
+        all_money = show_menu_screen(all_money)
         sword = sword_choose()
         for i in mobs.sprites():
             i.kill()
@@ -141,7 +144,7 @@ while running:
                 ability_reload_show(time, 'speedboost')
                 player.speedboost()
             if event.key == pygame.K_ESCAPE:
-                game_over = show_setting_screen()
+                game_over = show_setting_screen(all_money)
             for teleport in teleport_sprites:
                 if event.key == pygame.K_e and teleport.isOver():
                     lvl_num += 1
@@ -185,15 +188,15 @@ while running:
     # Проверка не ударил ли моб игрока
     if time - new_lvl_time:
         hits = pygame.sprite.spritecollide(player, mobs, True)
-        for hit in hits:
+        for mob in hits:
             player.lives -= 1
             if player.lives == 0:
                 game_over = True
 
     # Проверка сбора монеток игроком
     hits = pygame.sprite.spritecollide(player, coins_sprites, True)
-    for hit in hits:
-        all_money_gl += hit.cost
+    for coin in hits:
+        all_money += coin.cost
 
     # Создание портала
     for teleport in teleport_sprites:
@@ -209,7 +212,7 @@ while running:
     for x, y in world_map:
         pygame.draw.rect(screen, GREY, (x, y, WALL_SIZE, WALL_SIZE), 2)
     draw_text(screen, 'Меню на ESC', 30, 120, HEIGHT - 50)
-    draw_text(screen, (str(all_money_gl) + ' $'), 30, 120, HEIGHT - 100)
+    draw_text(screen, (str(all_money) + ' $'), 30, 120, HEIGHT - 100)
     draw_lives(screen, WIDTH - 100, 30, player.lives, heart_image)
     all_sprites.draw(screen)
     pygame.display.update()

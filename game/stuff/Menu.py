@@ -11,12 +11,13 @@ pygame.display.set_caption(screen_name)
 clock = pygame.time.Clock()
 
 
-def show_setting_screen():
+def show_setting_screen(money):
     setting = True
     while setting:
         clock.tick(FPS)
         mouse = pygame.mouse.get_pos()
         screen.fill(BLACK)
+        draw_text(screen, (str(money) + ' $'), 30, 120, HEIGHT - 100)
         draw_text(screen, 'Настройки', 40, WIDTH / 2, 80)
         for button in setting_buttons:
             button.draw(screen)
@@ -41,17 +42,16 @@ def show_setting_screen():
         pygame.display.flip()
 
 
-def swords_in_shop(item, num):
-    global all_money_gl
+def swords_in_shop(item, num, money):
     if item.num == num:
         if item_array[num - 1].buyed:
             for sword in item_sprites:
                 sword.chosen = False
             item_array[num - 1].chosen = True
-        if not item_array[num - 1].buyed and all_money_gl >= item_array[num - 1].cost:
-            all_money_gl -= item_array[num - 1].cost
+        if not item_array[num - 1].buyed and money >= item_array[num - 1].cost:
+            money -= item_array[num - 1].cost
             item_array[num - 1].buyed = True
-        if not item_array[num - 1].buyed and all_money_gl <= item_array[num - 1].cost:
+        if not item_array[num - 1].buyed and money <= item_array[num - 1].cost:
             no_money = True
             while no_money:
                 mouse = pygame.mouse.get_pos()
@@ -70,9 +70,10 @@ def swords_in_shop(item, num):
                     else:
                         no_money_button_shop.color = WHITE
                 pygame.display.flip()
+    return money
 
 
-def show_shop_screen():
+def show_shop_screen(money):
     shop = True
     while shop:
         clock.tick(FPS)
@@ -81,7 +82,7 @@ def show_shop_screen():
         item_sprites.draw(screen)
         item_sprites.update()
         draw_text(screen, 'Чтобы купить товар, нажми на него', 30, WIDTH / 2, HEIGHT - 200)
-        draw_text(screen, (str(all_money_gl) + ' $'), 30, WIDTH / 2, 30)
+        draw_text(screen, (str(money) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, 'Магазин', 56, WIDTH / 2, 100)
         draw_text(screen, 'Урон', 30, 150, 414)
         draw_text(screen, 'Уд/с', 30, 150, 464)
@@ -100,20 +101,21 @@ def show_shop_screen():
                 for item in item_sprites:
                     if item.isOver(mouse):
                         for num in range(len(item_array) + 1):
-                            swords_in_shop(item, num)
+                            money = swords_in_shop(item, num, money)
                 for button in shop_buttons:
                     if button.isOver(mouse):
                         if button == back_button_shop:
                             shop = False
         pygame.display.flip()
+    return money
 
 
-def show_menu_screen():
+def show_menu_screen(money):
     waiting = True
     while waiting:
         clock.tick(FPS)
         screen.fill(BLACK)
-        draw_text(screen, (str(all_money_gl) + ' $'), 30, WIDTH / 2, 30)
+        draw_text(screen, (str(money) + ' $'), 30, WIDTH / 2, 30)
         draw_text(screen, "Dragon Slayer", 64, WIDTH / 2, 100)
         for button in menu_buttons:
             button.draw(screen)
@@ -135,10 +137,11 @@ def show_menu_screen():
                         if button == info_button_menu:
                             show_info_screen()
                         if button == upgrade_button_menu:
-                            show_shop_screen()
+                            money = show_shop_screen(money)
                         if button == play_button_menu:
                             waiting = False
         pygame.display.flip()
+    return money
 
 
 def show_info_screen():

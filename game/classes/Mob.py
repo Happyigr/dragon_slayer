@@ -35,8 +35,8 @@ class Mob(pygame.sprite.Sprite):
             self.name = 'big'
             self.image = pygame.Surface((100, 100))
             self.image.fill(RED)
-            self.lives = random.randrange(5, 10)
-        if random.random() >= 0.8:
+            self.lives = random.randrange(10, 15)
+        elif random.random() >= 0.8:
             self.name = 'medium'
             self.image = pygame.Surface((50, 50))
             self.image.fill(RED)
@@ -49,19 +49,18 @@ class Mob(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(WALL_SIZE + self.rect.width, WIDTH - WALL_SIZE - self.rect.width)
         self.rect.y = random.randrange(WALL_SIZE + self.rect.height, HEIGHT - WALL_SIZE - self.rect.height)
-        self.spawn_time = pygame.time.get_ticks() + random.randrange(0, 5000)
+        self.spawn_time = pygame.time.get_ticks()
         self.changed_speed_time = pygame.time.get_ticks()
-        self.speedx = random.randrange(-5, 5)
-        self.speedy = random.randrange(-5, 5)
+        self.speedx = 0
+        self.speedy = 0
+        self.afk_time = 200
 
     def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
         time = pygame.time.get_ticks()
         # Ходьба мобов
         draw_text(screen, str(self.lives), 30, self.rect.x, self.rect.y)
-        if self.changed_speed_time == self.spawn_time:
-            self.changed_speed_time += 5000
+        if time - self.spawn_time > self.afk_time and self.changed_speed_time == self.spawn_time:
+            self.changed_speed_time -= 4000
         if time - self.changed_speed_time >= random.randrange(2000, 4000):
             if random.random() >= 0.9:
                 self.speedx = 0
@@ -75,13 +74,19 @@ class Mob(pygame.sprite.Sprite):
             self.changed_speed_time = time
         # Проверка выхода за карту
         if self.rect.right >= WIDTH - WALL_SIZE:
+            self.rect.right = WIDTH - WALL_SIZE
             self.speedx *= -1
         if self.rect.left <= 0 + WALL_SIZE:
+            self.rect.left = 0 + WALL_SIZE
             self.speedx *= -1
         if self.rect.top <= 0 + WALL_SIZE:
+            self.rect.top = 0 + WALL_SIZE
             self.speedy *= -1
         if self.rect.bottom >= HEIGHT - WALL_SIZE:
+            self.rect.bottom = HEIGHT - WALL_SIZE
             self.speedy *= -1
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
 
 # Спрайты
 mobs = pygame.sprite.Group()

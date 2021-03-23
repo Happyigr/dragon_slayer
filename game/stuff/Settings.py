@@ -1,5 +1,6 @@
 import math
 
+
 # Цвета (R, G, B)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -8,7 +9,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-GREY = (220,220,220)
+GREY = (220, 220, 220)
 BROWN = (221, 153, 102)
 
 # Настройка окна
@@ -28,6 +29,3 @@ for i in range(50, WIDTH - 50):
     mobs_values_x.append(i)
 for i in range(50, HEIGHT - 200):
     mobs_values_y.append(i)
-
-# Деньги
-all_money_gl = 1000
