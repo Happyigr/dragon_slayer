@@ -1,5 +1,7 @@
+from game.stuff.Map import wall_colision
 from game.stuff.Methods import *
 import pygame
+
 
 # Создаем игру и окно
 pygame.init()
@@ -37,14 +39,22 @@ class Player(pygame.sprite.Sprite):
         right = key_event[pygame.K_d]
         straight = key_event[pygame.K_w]
         back = key_event[pygame.K_s]
-        if left and not self.rect.left - self.speed <= 0 + WALL_SIZE:
+        if left:
             self.rect.x -= self.speed
-        if right and not self.rect.right + self.speed >= WIDTH - WALL_SIZE:
+        if right:
             self.rect.x += self.speed
-        if straight and not self.rect.top - self.speed <= 0 + WALL_SIZE:
+        if straight:
             self.rect.y -= self.speed
-        if back and not self.rect.bottom + self.speed >= HEIGHT - WALL_SIZE:
+        if back:
             self.rect.y += self.speed
+        if self.rect.right >= WIDTH - WALL_SIZE:
+            self.rect.right = WIDTH - WALL_SIZE
+        if self.rect.left <= 0 + WALL_SIZE:
+            self.rect.left = 0 + WALL_SIZE
+        if self.rect.top <= 0 + WALL_SIZE:
+            self.rect.top = 0 + WALL_SIZE
+        if self.rect.bottom >= HEIGHT - WALL_SIZE:
+            self.rect.bottom = HEIGHT - WALL_SIZE
         # Способности
         # Проверка на перезарядку спидбуста
         if time - self.SPEEDBOOST_TIMEON >= self.SPEEDBOOST_RELOADTIME:

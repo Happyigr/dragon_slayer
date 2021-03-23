@@ -17,8 +17,8 @@ def ability_reload_show(time, name):
             abil.last_time_used = time
 
 
-def coin_mob_drop(x, y):
-    coin_amount = random.randrange(1, 5)
+def coin_mob_drop(x, y, min, max):
+    coin_amount = random.randrange(min, max)
     for coin in range(coin_amount):
         coin_x = random.randrange(-50, 50) + x
         coin_y = random.randrange(-50, 50) + y
@@ -155,7 +155,15 @@ while running:
             sword.last_hit = time
             hit.lives -= sword.damage
             if hit.lives <= 0:
-                hit.kill()
+                if hit.name == 'small':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 1, 5)
+                    hit.kill()
+                if hit.name == 'medium':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 5, 10)
+                    hit.kill()
+                if hit.name == 'big':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 10, 20)
+                    hit.kill()
 
     # Проверка не ударил ли супер хит мобов
     for sword_hit in sword_hit_sprites:
@@ -164,8 +172,15 @@ while running:
             sword.last_hit = time
             hit.lives -= sword.damage
             if hit.lives <= 0:
-                hit.kill()
-                coin_mob_drop(hit.rect.centerx, hit.rect.centery)
+                if hit.name == 'small':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 1, 5)
+                    hit.kill()
+                if hit.name == 'medium':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 5, 10)
+                    hit.kill()
+                if hit.name == 'big':
+                    coin_mob_drop(hit.rect.centerx, hit.rect.centery, 10, 20)
+                    hit.kill()
 
     # Проверка не ударил ли моб игрока
     if time - new_lvl_time:

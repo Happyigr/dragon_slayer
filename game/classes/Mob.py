@@ -31,9 +31,21 @@ def to_player_go(mob):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((25, 25))
-        self.image.fill(RED)
-        self.lives = random.randrange(1, 5)
+        if random.random() >= 0.9:
+            self.name = 'big'
+            self.image = pygame.Surface((100, 100))
+            self.image.fill(RED)
+            self.lives = random.randrange(5, 10)
+        if random.random() >= 0.8:
+            self.name = 'medium'
+            self.image = pygame.Surface((50, 50))
+            self.image.fill(RED)
+            self.lives = random.randrange(5, 10)
+        else:
+            self.name = 'small'
+            self.image = pygame.Surface((25, 25))
+            self.image.fill(RED)
+            self.lives = random.randrange(1, 5)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(WALL_SIZE + self.rect.width, WIDTH - WALL_SIZE - self.rect.width)
         self.rect.y = random.randrange(WALL_SIZE + self.rect.height, HEIGHT - WALL_SIZE - self.rect.height)
