@@ -44,9 +44,7 @@ def ability_reload_show(time, name):
 def coin_mob_drop(x, y, min, max):
     coin_amount = random.randrange(min, max)
     for coin in range(coin_amount):
-        coin_x = random.randrange(-50, 50) + x
-        coin_y = random.randrange(-50, 50) + y
-        newcoin(coin_x, coin_y)
+        newcoin(x, y)
 
 
 # Создаёт удар меча (и сам класс Superhit преследует меч)
@@ -165,8 +163,9 @@ while running:
         # Настройки
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
-                ability_reload_show(time, 'speedboost')
-                player.speedboost()
+                if player.SPEEDBOOST_RELOAD:
+                    ability_reload_show(time, 'speedboost')
+                    player.speedboost()
             if event.key == pygame.K_ESCAPE:
                 game_over = show_setting_screen(all_money)
             for teleport in teleport_sprites:
@@ -174,6 +173,8 @@ while running:
                     lvl_num += 1
                     new_lvl(8, lvl_num)
 
+
+    # Удары
     # Проверка не ударил ли меч моба
     hits = pygame.sprite.spritecollide(sword, mobs, False)
     for hit in hits:
@@ -199,6 +200,7 @@ while running:
         if player.lives == 0:
             game_over = True
 
+    # Остальное
     # Проверка сбора монеток игроком
     hits = pygame.sprite.spritecollide(player, coins_sprites, True)
     for coin in hits:

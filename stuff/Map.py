@@ -1,6 +1,10 @@
 from stuff.Methods import *
 # settings есть в Methods
 
+
+def random_map_create():
+    pass
+
 # W = стена
 # Комната 15 на 9 (1500 на 900)
 text_map = [
@@ -9,7 +13,7 @@ text_map = [
     'W.............W',
     'W.............W',
     'W.............W',
-    'W.............W',
+    'W....WWWWWWWWWW',
     'W.............W',
     'W.............W',
     'W.............W',
@@ -17,7 +21,6 @@ text_map = [
 ]
 
 walls_coord = []
-world_map = set()
 for j, row in enumerate(text_map):
     for i, char in enumerate(row):
         if char == 'W':

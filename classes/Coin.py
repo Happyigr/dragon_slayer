@@ -1,4 +1,5 @@
 from stuff.Methods import *
+from classes.Wall import wall_sprites
 import random
 import pygame
 
@@ -19,16 +20,11 @@ class Coin(pygame.sprite.Sprite):
             self.image.fill(BROWN)
             self.cost = 1
         self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.centery = y
-        if self.rect.right >= WIDTH - WALL_SIZE:
-            self.rect.right = WIDTH - WALL_SIZE
-        if self.rect.left <= 0 + WALL_SIZE:
-            self.rect.left = 0 + WALL_SIZE
-        if self.rect.top <= 0 + WALL_SIZE:
-            self.rect.top = 0 + WALL_SIZE
-        if self.rect.bottom >= HEIGHT - WALL_SIZE:
-            self.rect.bottom = HEIGHT - WALL_SIZE
+        self.rect.centerx = random.randrange(-50, 50) + x
+        self.rect.centery = random.randrange(-50, 50) + y
+        while pygame.sprite.spritecollide(self, wall_sprites, False):
+            self.rect.centerx = random.randrange(-50, 50) + x
+            self.rect.centery = random.randrange(-50, 50) + y
 
     def update(self):
         pass

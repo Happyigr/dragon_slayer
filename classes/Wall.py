@@ -1,5 +1,3 @@
-from stuff.Methods import *
-# в Methods есть Settings
 from stuff.images import wall_img
 import pygame
 

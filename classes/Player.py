@@ -1,4 +1,6 @@
-from stuff.Methods import *
+from classes.Wall import wall_sprites
+from stuff.images import player_img
+from stuff.Map import *
 import pygame
 
 
@@ -10,14 +12,22 @@ pygame.display.set_caption(screen_name)
 clock = pygame.time.Clock()
 
 
+class Player_copy(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = player_img
+        self.rect = self.image.get_rect()
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
+        self.image = player_img
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT - 50)
-        self.speed = 5
+        self.speed = (0, 0)     # Скорость по х и у
+        self.speed_value = 5    # Скорость игрока в одну сторону
         self.lives = 3
         self.SPEEDBOOST_TIMEON = 0
         self.SPEEDBOOST_TIME = 3000
@@ -29,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.SUPERHIT_RELOAD = True
         self.SUPERHIT_RELOADTIME = 200
 
+
     def update(self):
         time = pygame.time.get_ticks()
         # Проверка выхода за карту + Ходьба
@@ -37,45 +48,59 @@ class Player(pygame.sprite.Sprite):
         right = key_event[pygame.K_d]
         straight = key_event[pygame.K_w]
         back = key_event[pygame.K_s]
+        self.speed = (0, 0)
         if left:
-            self.rect.x -= self.speed
+            self.speed = (-self.speed_value, 0)
         if right:
-            self.rect.x += self.speed
+            self.speed = (self.speed_value, 0)
         if straight:
-            self.rect.y -= self.speed
+            self.speed = (0, -self.speed_value)
         if back:
-            self.rect.y += self.speed
-        if self.rect.right >= WIDTH - WALL_SIZE:
-            self.rect.right = WIDTH - WALL_SIZE
-        if self.rect.left <= 0 + WALL_SIZE:
-            self.rect.left = 0 + WALL_SIZE
-        if self.rect.top <= 0 + WALL_SIZE:
-            self.rect.top = 0 + WALL_SIZE
-        if self.rect.bottom >= HEIGHT - WALL_SIZE:
-            self.rect.bottom = HEIGHT - WALL_SIZE
+            self.speed = (0, self.speed_value)
+        if left and straight:
+            self.speed = (-self.speed_value, -self.speed_value)
+        if left and back:
+            self.speed = (-self.speed_value, self.speed_value)
+        if right and straight:
+            self.speed = (self.speed_value, -self.speed_value)
+        if right and back:
+            self.speed = (self.speed_value, self.speed_value)
+        self.collision_check()
         # Способности
         # Проверка на перезарядку спидбуста
         if time - self.SPEEDBOOST_TIMEON >= self.SPEEDBOOST_RELOADTIME:
             self.SPEEDBOOST_RELOAD = True
         if time - self.SPEEDBOOST_TIMEON > self.SPEEDBOOST_TIME:
-            self.speed = 5
+            self.speed_value = 5
             self.SPEEDBOOST_ON = False
         # Перезарядка суперудара
         if time - self.SUPERHIT_TIMEON >= self.SUPERHIT_RELOADTIME:
             self.SUPERHIT_RELOAD = True
 
+    def collision_check(self):
+        # Проверка не удариться ли игрок со стеной
+        # по х
+        player_copy.rect.center = self.rect.center
+        player_copy.rect.x += self.speed[0]
+        if pygame.sprite.spritecollide(player_copy, wall_sprites, False):
+            self.speed = (0, self.speed[1])
+        # по у
+        player_copy.rect.center = self.rect.center
+        player_copy.rect.y += self.speed[1]
+        if pygame.sprite.spritecollide(player_copy, wall_sprites, False):
+            self.speed = (self.speed[0], 0)
+        # прибавка скорости
+        self.rect.x += self.speed[0]
+        self.rect.y += self.speed[1]
+
     def speedboost(self):
         time = pygame.time.get_ticks()
         if self.SPEEDBOOST_RELOAD:
-            self.speed = 15
+            self.speed_value = 15
             self.SPEEDBOOST_TIMEON = time
             self.SPEEDBOOST_RELOAD = False
             self.SPEEDBOOST_ON = True
 
-    # Возвращает координаты в виде x y
-    def get_coord(self):
-        coord = [self.rect.x, self.rect.y]
-        return coord
-
-
+# Спрайты
 player = Player()
+player_copy = Player_copy()
