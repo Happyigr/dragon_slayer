@@ -1,3 +1,4 @@
+import pygame
 from classes.Mob import *
 from classes.Sword import *
 from classes.Sword_hit import *
@@ -13,23 +14,15 @@ global all_money
 
 # Убийство моба с выпадением монеток кол-во которых зависит от названия моба (small, big...)
 def mob_kill(mob):
-    if mob.name == 'small':
+    if mob.type == 'small':
         coin_mob_drop(mob.rect.centerx, mob.rect.centery, 1, 5)
         mob.kill()
-    if mob.name == 'medium':
+    if mob.type == 'medium':
         coin_mob_drop(mob.rect.centerx, mob.rect.centery, 5, 10)
         mob.kill()
-    if mob.name == 'big':
+    if mob.type == 'big':
         coin_mob_drop(mob.rect.centerx, mob.rect.centery, 10, 20)
         mob.kill()
-
-
-# Инициализация карты игры, чтобы было легко читать столкновения игрока со стеной
-def map_init():
-    for xy in walls_coord:
-        wall = Wall(xy[0], xy[1])
-        wall_sprites.add(wall)
-        all_sprites.add(wall)
 
 
 # Если есть абилка в ability то можно таким образом передать сюда название абилки и сброситься её кд
@@ -47,13 +40,6 @@ def coin_mob_drop(x, y, min, max):
         newcoin(x, y)
 
 
-# Создаёт удар меча (и сам класс Superhit преследует меч)
-def sword_hit_ability():
-    hit = Sword_hit()
-    sword_hit_sprites.add(hit)
-    all_sprites.add(hit)
-
-
 # Выбор меча по атрибуту sword.chosen
 def sword_choose():
     global sword
@@ -68,11 +54,12 @@ def sword_choose():
     return sword
 
 
-# Создаёт моба
-def newmob():
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
+# Инициализация карты игры
+def map_init():
+    for x, y in walls_coord:
+        wall = Wall(x, y)
+        wall_sprites.add(wall)
+        all_sprites.add(wall)
 
 
 # Вызывает скрин нового уровня и спавнит новых мобов (не убивая старых мобов!!!!)
@@ -97,12 +84,23 @@ def newcoin(x, y):
     coins_sprites.add(coin)
 
 
-# не нужно
-def teleport_spawn(x, y):
-    portal = Teleport(x, y)
-    portal.add(all_sprites)
-    portal.add(teleport_sprites)
+# Спавн моба (координаты присваиваются случайно, если их не указали)
+def newmob(centerx=None, centery=None):
+    if centerx is None and centery is None:
+        # seq_num из Map.py
+        cell_num = random.randrange(0, seq_num - 1)
+        centerx = spawn_coord_x[cell_num]
+        centery = spawn_coord_y[cell_num]
+    m = Mob(centerx, centery)
+    all_sprites.add(m)
+    mobs.add(m)
 
+
+# Спавн удар меча (и сам класс Superhit преследует меч)
+def sword_hit_ability():
+    hit = Sword_hit()
+    sword_hit_sprites.add(hit)
+    all_sprites.add(hit)
 
 # Создаем игру и окно
 pygame.init()
@@ -144,10 +142,7 @@ while running:
     # Держим цикл на правильной скорости
     time = pygame.time.get_ticks()
     clock.tick(FPS)
-    # убить спрайт суперудара после того как время удара прошло
-    if time - player.SUPERHIT_TIMEON >= player.SUPERHIT_DURATION:
-        for sword_superhit in sword_hit_sprites:
-            sword_superhit.kill()
+
     # Ввод процесса (события)
     for event in pygame.event.get():
         # check for closing window
@@ -174,33 +169,47 @@ while running:
                     new_lvl(8, lvl_num)
 
 
-    # Удары
+    # Столкновения спрайтов
     # Проверка не ударил ли меч моба
     hits = pygame.sprite.spritecollide(sword, mobs, False)
-    for hit in hits:
-        if time - sword.last_hit >= sword.rate:
-            sword.last_hit = time
-            hit.lives -= sword.damage
-            if hit.lives <= 0:
-                mob_kill(hit)
+    if hits:
+        for hit in hits:
+            if time - sword.last_hit >= sword.rate:
+                sword.last_hit = time
+                hit.lives -= sword.damage
+                if hit.lives <= 0:
+                    mob_kill(hit)
 
     # Проверка не ударил ли супер хит мобов
     for sword_hit in sword_hit_sprites:
         hits = pygame.sprite.spritecollide(sword_hit, mobs, False)
-        for hit in hits:
-            sword.last_hit = time
-            hit.lives -= sword.damage
-            if hit.lives <= 0:
-                mob_kill(hit)
+        if hits:
+            for hit in hits:
+                sword.last_hit = time
+                hit.lives -= sword.damage
+                if hit.lives <= 0:
+                    mob_kill(hit)
 
     # Проверка не ударил ли моб игрока
     hits = pygame.sprite.spritecollide(player, mobs, True)
-    for mob in hits:
-        player.lives -= 1
-        if player.lives == 0:
-            game_over = True
+    if hits:
+        for hit in hits:
+            player.lives -= 1
+            if player.lives == 0:
+                game_over = True
+
+    # Проверка не ударился ли моб со стеной
+    hits = pygame.sprite.groupcollide(mobs, wall_sprites, False, False)
+    if hits:
+        for hit in hits:
+            hit.speed = (hit.speed[0] * -1, hit.speed[1] * -1)
 
     # Остальное
+    # Убить спрайт суперудара после того как время удара прошло
+    if time - player.SUPERHIT_TIMEON >= player.SUPERHIT_DURATION:
+        for sword_superhit in sword_hit_sprites:
+            sword_superhit.kill()
+
     # Проверка сбора монеток игроком
     hits = pygame.sprite.spritecollide(player, coins_sprites, True)
     for coin in hits:

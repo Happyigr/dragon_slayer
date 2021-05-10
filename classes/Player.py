@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.SUPERHIT_TIMEON = 0
         self.SUPERHIT_DURATION = 200
         self.SUPERHIT_RELOAD = True
-        self.SUPERHIT_RELOADTIME = 200
+        self.SUPERHIT_RELOADTIME = 2000
 
 
     def update(self):

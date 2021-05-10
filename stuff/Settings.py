@@ -16,7 +16,7 @@ BROWN = (221, 153, 102)
 screen_name = 'ahahaha'
 WIDTH = 1500
 HEIGHT = 1000
-FPS = 60
+FPS = 120
 WALL_SIZE = 100
 
 # Для мобов

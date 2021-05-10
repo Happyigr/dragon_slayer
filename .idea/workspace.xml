@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="67afb6a2-745d-4fa4-8800-6724ac692f71" name="Default Changelist" comment="Small sorting">
-      <change beforePath="$PROJECT_DIR$/classes/Coin.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Coin.py" afterDir="false" />
+    <list default="true" id="67afb6a2-745d-4fa4-8800-6724ac692f71" name="Default Changelist" comment="Wall now are the Wall&#10;Теперь можно делать карты со стенаи и это будет стеной(никто не сможет в неё зайти)&#10;Пока что не очень хорошо работает с мобами, не знаю что делать&#10;Пофикшен баг когда нажимаешь на q во время перезарядки кд обновляется">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/Mob.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Mob.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Player.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/Wall.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Wall.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Sword_hit.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Sword_hit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/stuff/Map.py" beforeDir="false" afterPath="$PROJECT_DIR$/stuff/Map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stuff/images.py" beforeDir="false" afterPath="$PROJECT_DIR$/stuff/images.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stuff/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/stuff/Settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +41,8 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -48,6 +50,69 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="ллщ" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="dragon_slayer" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ллщ.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Map" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="dragon_slayer" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/stuff" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/stuff/Map.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Mob" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="dragon_slayer" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/classes" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/classes/Mob.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Player" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="shool_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -70,15 +135,15 @@
       <method v="2" />
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="shool_project" />
+      <module name="dragon_slayer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\popka\PycharmProjects\shool_project\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
@@ -92,6 +157,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Map" />
+        <item itemvalue="Python.ллщ" />
+        <item itemvalue="Python.Mob" />
         <item itemvalue="Python.Player" />
       </list>
     </recent_temporary>
@@ -112,7 +180,21 @@
       <option name="project" value="LOCAL" />
       <updated>1618208410549</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Wall now are the Wall&#10;Теперь можно делать карты со стенаи и это будет стеной(никто не сможет в неё зайти)&#10;Пока что не очень хорошо работает с мобами, не знаю что делать&#10;Пофикшен баг когда нажимаешь на q во время перезарядки кд обновляется">
+      <created>1618219075269</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1618219075269</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Wall now are the Wall&#10;Теперь можно делать карты со стенаи и это будет стеной(никто не сможет в неё зайти)&#10;Пока что не очень хорошо работает с мобами, не знаю что делать&#10;Пофикшен баг когда нажимаешь на q во время перезарядки кд обновляется">
+      <created>1618219093502</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1618219093502</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -125,9 +207,11 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Small sorting" />
-    <option name="LAST_COMMIT_MESSAGE" value="Small sorting" />
+    <MESSAGE value="Wall now are the Wall&#10;Теперь можно делать карты со стенаи и это будет стеной(никто не сможет в неё зайти)&#10;Пока что не очень хорошо работает с мобами, не знаю что делать&#10;Пофикшен баг когда нажимаешь на q во время перезарядки кд обновляется" />
+    <option name="LAST_COMMIT_MESSAGE" value="Wall now are the Wall&#10;Теперь можно делать карты со стенаи и это будет стеной(никто не сможет в неё зайти)&#10;Пока что не очень хорошо работает с мобами, не знаю что делать&#10;Пофикшен баг когда нажимаешь на q во время перезарядки кд обновляется" />
   </component>
 </project>
